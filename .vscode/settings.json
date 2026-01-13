@@ -1,4 +1,6 @@
 {
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.server.launchMode": "Standard",
   "files.exclude": {
