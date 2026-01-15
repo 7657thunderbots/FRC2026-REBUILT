@@ -17,5 +17,5 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public static final int newConstant = 1;
+  public static final int nNewewConstant = 1;
 }
