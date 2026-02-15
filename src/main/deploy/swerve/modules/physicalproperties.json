@@ -1,0 +1,22 @@
+{
+  "conversionFactors": {
+    "angle": {
+      "gearRatio": 12.8
+    },
+    "drive": {
+      "gearRatio": 6.75,
+      "diameter": 4
+    }
+  },
+  "currentLimit": {
+    "drive": 30,
+    "angle": 25
+  },
+  "rampRate": {
+    "drive": 0.25,
+    "angle": 0.15
+  },
+  "robotMass": 135,
+  "wheelGripCoefficientOfFriction": 1.19,
+  "optimalVoltage": 12
+}
