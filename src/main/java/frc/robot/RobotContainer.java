@@ -35,9 +35,11 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/neo"));
 
-  private final Vision m_Vision = new Vision(drivebase.getSwerveDrive()::addVisionMeasurement, drivebase);
+  // private final Vision m_Vision = new
+  // Vision(drivebase.getSwerveDrive()::addVisionMeasurement, drivebase);
 
-  private final VisionSimSubSystem m_SimSubSystem = new VisionSimSubSystem(m_Vision);
+  // private final VisionSimSubSystem m_SimSubSystem = new
+  // VisionSimSubSystem(m_Vision);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
@@ -75,12 +77,12 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    new Trigger(m_exampleSubsystem::exampleCondition).onTrue(new ExampleCommand(m_exampleSubsystem));
 
     Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+
     drivebase.zeroGyroWithAlliance();
-    ;
+
     drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
   }
 
