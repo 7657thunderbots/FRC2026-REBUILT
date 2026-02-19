@@ -51,7 +51,8 @@ public class RobotContainer {
       .withControllerRotationAxis(m_driverController::getRightX)
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.8)
-      .allianceRelativeControl(true);
+      .allianceRelativeControl(true)
+      .scaleRotation(-1.0);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
