@@ -60,6 +60,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    m_driverController.button(3).onTrue(drivebase.sysIdDriveMotorCommand());
+    m_driverController.button(4).onTrue(drivebase.sysIdAngleMotorCommand());
   }
 
   /**
