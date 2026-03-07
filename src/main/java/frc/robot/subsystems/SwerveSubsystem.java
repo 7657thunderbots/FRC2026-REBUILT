@@ -72,7 +72,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Pose2d startingPose = blueAlliance ? Constants.SIM_START_POSE
                 : new Pose2d(new Translation2d(Meter.of(16),
                         Meter.of(4)),
-                        Rotation2d.fromDegrees(180));
+                        Rotation2d.fromDegrees(0));
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -94,7 +94,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 true,
                 0.01); // Correct for skew that gets worse as angular velocity increases. Start with a
                        // coefficient of 0.1.
-        swerveDrive.setModuleEncoderAutoSynchronize(false,
+        swerveDrive.setModuleEncoderAutoSynchronize(true,
                 1); // Enable if you want to resynchronize your absolute encoders and motor encoders
                     // periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used
@@ -342,8 +342,8 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveForward() {
         return run(() -> {
-            swerveDrive.drive(new Translation2d(1, 0), 0, false, false);
-        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
+            swerveDrive.drive(new Translation2d(1, 0), 0, true, false);
+        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, true, false));
     }
 
     /**
