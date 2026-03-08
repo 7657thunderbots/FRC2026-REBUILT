@@ -55,7 +55,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final Field2d field;
   private final StringLogEntry shooterLog = new StringLogEntry(DataLogManager.getLog(), "/shooter/events");
-  private final DoubleLogEntry turretRot = new DoubleLogEntry(DataLogManager.getLog(), "/shooter/rot");
   private final DoublePublisher turretBearingPublisher;
   private Pose2d targetPose;
   private Pose2d shooterPose;
@@ -90,7 +89,6 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterPose = new Pose2d(currAzimuthPose.getX(), currAzimuthPose.getY(),
         currAzimuthPose.getRotation().plus(getAzimuthPosition()));
     field.getObject("turretPose").setPose(shooterPose);
-    turretRot.append(shooterPose.getRotation().getDegrees());
     // set the turret position to zero
     setTurretPosition(0.0);
     shooterLog.append("Shooter has Initialized!");
@@ -254,7 +252,6 @@ public class ShooterSubsystem extends SubsystemBase {
       setTurretPosition(targetBearing);
     }
 
-    turretRot.append(shooterPose.getRotation().getDegrees());
   }
 
   @Override
