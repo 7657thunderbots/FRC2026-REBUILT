@@ -44,6 +44,18 @@ public final class Constants {
     public static final double TURN_CONSTANT = 4;
   }
 
+  public static class ShooterConstants {
+    public static final Pose2d hub_pose = new Pose2d(4.65, 4, Rotation2d.kZero);
+    public static final int azimuthCANBUSID = 12;
+    public static final double azimuth_Kp = 10;
+    public static final double azimuth_Kd = 0.1;
+    public static final double azimuth_Ki = 0.0;
+    public static final float azimuthGearRatio = 200 / 21; // 200 tooth turrent gear with 21 tooth drive gear
+    public static final int azimuthEncoderCountsPerRev = Math.round(42 * azimuthGearRatio); // Gear ratio times Neo
+                                                                                            // Motor Encoder 42 counts
+                                                                                            // per rev
+  }
+
   public static class CameraConstants {
     // Camera configuration class to hold camera name and transform
     public static class CameraConfig {
