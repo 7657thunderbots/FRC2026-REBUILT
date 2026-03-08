@@ -52,13 +52,13 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkMax azimuthMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder azimuthEncoder; // Integrated NEO encoder.
   private SparkMaxConfig cfg = new SparkMaxConfig();
+
   private final Field2d field;
   private final StringLogEntry shooterLog = new StringLogEntry(DataLogManager.getLog(), "/shooter/events");
   private final DoubleLogEntry turretRot = new DoubleLogEntry(DataLogManager.getLog(), "/shooter/rot");
   private final DoublePublisher turretBearingPublisher;
   private Pose2d targetPose;
   private Pose2d shooterPose;
-  // private final DoublePublisher turretDistancePublisher;
 
   private ShooterMode currentMode = ShooterMode.AUTO;
 
@@ -100,6 +100,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
   }
 
+  /**
+   * Sets up the azimuth control Sparkmax / Neo to control pointing direction of
+   * the shooter
+   * All of thee parameters can also be found in the REV 2.0 GUI. If they don't
+   * work there, they won't work here
+   * 
+   **/
   private void configureAzimuthMotor() {
     // clear sparkmax faults
     clearStickyFaults(azimuthMotor);
@@ -112,6 +119,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Time to go from zero to full throttle
     cfg.closedLoopRampRate(0.25);
 
+    // PID control constants
     cfg.closedLoop.pid(Constants.ShooterConstants.azimuth_Kp, Constants.ShooterConstants.azimuth_Ki,
         Constants.ShooterConstants.azimuth_Kd);
     cfg.closedLoop.iZone(0.0);
