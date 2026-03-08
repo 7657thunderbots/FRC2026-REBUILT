@@ -19,6 +19,9 @@ public class RobotContainer {
   private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(() -> m_swerveSubsystem.getPose(),
       m_swerveSubsystem.getSwerveDrive().field, m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
 
+  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(() -> m_swerveSubsystem.getPose(),
+      m_swerveSubsystem.getField());
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -39,13 +42,14 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    m_ShooterSubsystem.setDefaultCommand(null);
+
   }
 
   private void configureBindings() {
     Command driveFieldOrientedAnglularVelocity = m_swerveSubsystem.driveFieldOriented(driveAngularVelocity);
 
     m_swerveSubsystem.zeroGyroWithAlliance();
-
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
     m_driverController.a().whileTrue(m_swerveSubsystem.driveForward());
