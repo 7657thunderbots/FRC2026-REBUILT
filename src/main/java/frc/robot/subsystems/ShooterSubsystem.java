@@ -6,11 +6,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
+import static frc.robot.Constants.ShooterConstants.*;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
-import com.pathplanner.lib.path.RotationTarget;
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -25,23 +24,15 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.ShooterConstants;
-import swervelib.telemetry.SwerveDriveTelemetry;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -72,7 +63,7 @@ public class ShooterSubsystem extends SubsystemBase {
    **/
   public ShooterSubsystem(Supplier<Pose2d> pose_supplier, Field2d fieldObj) {
 
-    azimuthMotor = new SparkMax(Constants.ShooterConstants.azimuthCANBUSID, MotorType.kBrushed);
+    azimuthMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushed);
     // Get the onboard PID controller.
     azimuthPid = azimuthMotor.getClosedLoopController();
     azimuthEncoder = azimuthMotor.getEncoder();
@@ -81,14 +72,19 @@ public class ShooterSubsystem extends SubsystemBase {
     configureAzimuthMotor();
 
     // set the current target to be the hub
-    setTargetPose(ShooterConstants.hub_pose);
+    setTargetPose(HUB_POSE);
 
     // add a turret pose to the field object so we can see it in simulation
     Pose2d currAzimuthPose = robot_pose.get();
 
     shooterPose = new Pose2d(currAzimuthPose.getX(), currAzimuthPose.getY(),
         currAzimuthPose.getRotation().plus(getAzimuthPosition()));
-    field.getObject("turretPose").setPose(shooterPose);
+
+    // Only update field object in simulation
+    if (RobotBase.isSimulation()) {
+      field.getObject("turretPose").setPose(shooterPose);
+    }
+
     // set the turret position to zero
     setTurretPosition(0.0);
     shooterLog.append("Shooter has Initialized!");
@@ -118,8 +114,8 @@ public class ShooterSubsystem extends SubsystemBase {
     cfg.closedLoopRampRate(0.25);
 
     // PID control constants
-    cfg.closedLoop.pid(Constants.ShooterConstants.azimuth_Kp, Constants.ShooterConstants.azimuth_Ki,
-        Constants.ShooterConstants.azimuth_Kd);
+    cfg.closedLoop.pid(AZIMUTH_KP, AZIMUTH_KI,
+        AZIMUTH_KD);
     cfg.closedLoop.iZone(0.0);
     // The controller has a max range of -1 to 1
     cfg.closedLoop.outputRange(-1, 1);
@@ -132,9 +128,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // setup encoder so it understands how many counts are a single turret
     // revolution
-    cfg.encoder.countsPerRevolution(Constants.ShooterConstants.azimuthEncoderCountsPerRev);
+    cfg.encoder.countsPerRevolution(AZIMUTH_ENCODER_COUNTS_PER_REV);
 
-    double degreesPerRevolution = 360 / Constants.ShooterConstants.azimuthGearRatio;
+    double degreesPerRevolution = 360 / AZIMUTH_GEAR_RATIO;
     cfg.encoder.positionConversionFactor(degreesPerRevolution); // change turret rotations to degrees
 
     // velocity is in revolutions per minute and we want to convert to degrees per

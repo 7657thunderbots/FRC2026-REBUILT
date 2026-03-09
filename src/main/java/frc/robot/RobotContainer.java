@@ -3,6 +3,7 @@ package frc.robot;
 import java.io.File;
 
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.*;
 import frc.robot.Constants.*;
 
@@ -24,7 +25,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
+      OperatorConstants.DRIVER_CONTROLLER_PORT);
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
       m_swerveSubsystem.getSwerveDrive(),

@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import swervelib.math.Matter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Matrix;
 
@@ -37,7 +36,7 @@ public final class Constants {
   public static final Pose2d SIM_START_POSE = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(0));
 
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+    public static final int DRIVER_CONTROLLER_PORT = 0;
 
     // Joystick Deadband
     public static final double DEADBAND = 0.1;
@@ -45,15 +44,16 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static final Pose2d hub_pose = new Pose2d(4.65, 4, Rotation2d.kZero);
-    public static final int azimuthCANBUSID = 12;
-    public static final double azimuth_Kp = 10;
-    public static final double azimuth_Kd = 0.1;
-    public static final double azimuth_Ki = 0.0;
-    public static final float azimuthGearRatio = 200 / 21; // 200 tooth turrent gear with 21 tooth drive gear
-    public static final int azimuthEncoderCountsPerRev = Math.round(42 * azimuthGearRatio); // Gear ratio times Neo
-                                                                                            // Motor Encoder 42 counts
-                                                                                            // per rev
+    public static final Pose2d HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
+    public static final int AZIMUTH_CAN_BUS_ID = 12;
+    public static final double AZIMUTH_KP = 10;
+    public static final double AZIMUTH_KD = 0.1;
+    public static final double AZIMUTH_KI = 0.0;
+    public static final float AZIMUTH_GEAR_RATIO = 200 / 21; // 200 tooth turrent gear with 21 tooth drive gear
+    public static final int AZIMUTH_ENCODER_COUNTS_PER_REV = Math.round(42 * AZIMUTH_GEAR_RATIO); // Gear ratio times
+                                                                                                  // Neo
+    // Motor Encoder 42 counts
+    // per rev
   }
 
   public static class CameraConstants {
@@ -82,13 +82,13 @@ public final class Constants {
     };
 
     // The layout of the AprilTags on the field
-    public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout
+    public static final AprilTagFieldLayout TAG_LAYOUT = AprilTagFieldLayout
         .loadField(AprilTagFields.k2026RebuiltAndymark);
 
     // The standard deviations of our vision estimated poses, which affect
     // correction rate
     // (Fake values. Experiment and determine estimation noise on an actual robot.)
-    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(.4, .4, .8);
-    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(.2, 2, 3);
+    public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(.4, .4, .8);
+    public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(.2, 2, 3);
   }
 }
