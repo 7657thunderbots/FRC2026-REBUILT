@@ -44,16 +44,34 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
+    public static final int LIMIT_SW_DIO = 0; // limit switch digital IO number
     public static final Pose2d HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
+    // shooter motor velocity once engaged
+    public static final double SHOOT_RPMS = 100;
+    // Azimuth Motor Configuration
     public static final int AZIMUTH_CAN_BUS_ID = 12;
-    public static final double AZIMUTH_KP = 10;
-    public static final double AZIMUTH_KD = 0.1;
+    public static final double AZIMUTH_KP = 0.00325;
+    public static final double AZIMUTH_KD = 1.0;
     public static final double AZIMUTH_KI = 0.0;
     public static final float AZIMUTH_GEAR_RATIO = 200 / 21; // 200 tooth turrent gear with 21 tooth drive gear
     public static final int AZIMUTH_ENCODER_COUNTS_PER_REV = Math.round(42 * AZIMUTH_GEAR_RATIO); // Gear ratio times
-                                                                                                  // Neo
-    // Motor Encoder 42 counts
-    // per rev
+                                                                                                  // Neo Motor Encoder
+                                                                                                  // 42 counts per rev
+    // Hood Motor Configuration
+    public static final int HOOD_CAN_BUS_ID = 11;
+    public static final double HOOD_KP = 0.003;
+    public static final double HOOD_KD = 0.01;
+    public static final double HOOD_KI = 0.0;
+    public static final float HOOD_GEAR_RATIO = 1 / 1; // The hood has a rack and pinion gear
+    public static final int HOOD_ENCODER_COUNTS_PER_REV = Math.round(42 * HOOD_GEAR_RATIO);
+
+    // Shoot motor configuation
+    public static final int SHOOT_CAN_BUS_ID = 10;
+    public static final double SHOOT_KP = 0.1;
+    public static final double SHOOT_KD = 0.1;
+    public static final double SHOOT_KI = 0.0;
+    public static final float SHOOT_GEAR_RATIO = 1 / 1; // The Shoot motor is direct drive on the shaft
+    public static final int SHOOT_ENCODER_COUNTS_PER_REV = Math.round(42 * SHOOT_GEAR_RATIO);
   }
 
   public static class CameraConstants {
