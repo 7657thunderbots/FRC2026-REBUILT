@@ -71,6 +71,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private Pose2d targetPose;
   private Pose2d shooterPose;
 
+  private Double manualBearingSetpoint = 0.0;
+
   private ShooterMode currentMode = ShooterMode.AUTO;
 
   private final Supplier<Pose2d> robot_pose;
@@ -444,14 +446,16 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterPose = new Pose2d(currRobotPose.getX(), currRobotPose.getY(),
         currRobotPose.getRotation().plus(getAzimuthPosition()));
 
-    // Based on the updated positions above, find the bearing angle to the target
-    double targetBearing = calculateTargetBearing(targetPose);
+    double targetBearing = manualBearingSetpoint;
+    // Based on the updated positions above, find the bearing angle to the target if
+    // in AUTO
+    if (currentMode == ShooterMode.AUTO) {
+      targetBearing = calculateTargetBearing(targetPose);
+    }
     // send the bearing angle to network tables so we can see it in Advantage Scope
     turretBearingPublisher.set(targetBearing);
-    // update the current turret Position if we are in AUTO Shooter mode
-    if (currentMode == ShooterMode.AUTO) {
-      setTurretPosition(targetBearing);
-    }
+    // update the current turret Position
+    setTurretPosition(targetBearing);
 
   }
 
@@ -487,6 +491,20 @@ public class ShooterSubsystem extends SubsystemBase {
 
     return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 
+  }
+
+  // set the target bearing for manual mode
+  public void setManualTargetBearing(double targetBearing) {
+    manualBearingSetpoint = targetBearing;
+  }
+
+  public Command setManualAzimuth(double cmd) {
+    this.setShooterMode(ShooterMode.MANUAL);
+    return runOnce(
+        () -> {
+          this.setManualTargetBearing(0);
+          /* one-time action goes here */
+        });
   }
 
   /**
