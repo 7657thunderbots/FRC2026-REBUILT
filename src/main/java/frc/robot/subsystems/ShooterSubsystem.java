@@ -168,6 +168,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // PID control constants
     azimuthCfg.closedLoop.pid(AZIMUTH_KP, AZIMUTH_KI,
         AZIMUTH_KD);
+    azimuthCfg.closedLoop.feedForward.kS(AZIMUTH_KS, ClosedLoopSlot.kSlot0);
+    azimuthCfg.closedLoop.feedForward.kV(AZIMUTH_KV, ClosedLoopSlot.kSlot0);
     azimuthCfg.closedLoop.iZone(0.0);
     // The controller has a max range of -1 to 1
     azimuthCfg.closedLoop.outputRange(-1, 1);
@@ -221,7 +223,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // PID control constants
     hoodCfg.closedLoop.pid(HOOD_KP, HOOD_KI,
-        HOOD_KD);
+        HOOD_KD, ClosedLoopSlot.kSlot0);
+    hoodCfg.closedLoop.feedForward.kS(HOOD_KS, ClosedLoopSlot.kSlot0);
+    hoodCfg.closedLoop.feedForward.kS(HOOD_KV, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.iZone(0.0);
     // The controller has a max range of -1 to 1
     hoodCfg.closedLoop.outputRange(-1, 1);
@@ -255,7 +259,8 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets up the Hood control Sparkmax / Neo to control the hood of the shooter
+   * Sets up the shooter control Sparkmax / Neo to control the output velocity of
+   * the shooter
    * All of thee parameters can also be found in the REV 2.0 GUI. If they don't
    * work there, they won't work here
    * 
@@ -267,25 +272,31 @@ public class ShooterSubsystem extends SubsystemBase {
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
     shootCfg.voltageCompensation(12.0);
-    shootCfg.smartCurrentLimit(20);
+    shootCfg.smartCurrentLimit(40);
 
-    // Time to go from zero to full throttle
-    shootCfg.closedLoopRampRate(0.25);
+    // Time to go from zero to full throttle at the controller output
+    // We want spin up to be quick
+    shootCfg.closedLoopRampRate(0.1);
 
     // PID control constants
     shootCfg.closedLoop.pid(SHOOT_KP, SHOOT_KI,
-        SHOOT_KD);
+        SHOOT_KD, ClosedLoopSlot.kSlot0);
+    shootCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
+    shootCfg.closedLoop.feedForward.kS(SHOOT_KS, ClosedLoopSlot.kSlot0);
+    shootCfg.closedLoop.feedForward.kS(SHOOT_KV, ClosedLoopSlot.kSlot0);
     shootCfg.closedLoop.iZone(0.0);
-    // The controller has a max range of -1 to 1
-    shootCfg.closedLoop.outputRange(-1, 1);
+    // The controller has a max range of -1 to 1, we don't want it to ever run in
+    // reverse so set to 0 to 1
+    shootCfg.closedLoop.outputRange(0, 1);
 
-    // Configure feedback of the PID controller as the integrated encoder.
+    // Configure feedback of the PID controller as the integrated Hall encoder.
     shootCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
     // We don't care about position for this motor, we are controlling on velocity
     shootCfg.closedLoop.positionWrappingEnabled(false);
 
-    // Configure hood counts per rev. In this case its the standard neo
-    shootCfg.encoder.countsPerRevolution(SHOOT_ENCODER_COUNTS_PER_REV);
+    // Configure hood counts per rev. This actually doesn't matter because we are
+    // using the NEO internal encoder
+    // shootCfg.encoder.countsPerRevolution(SHOOT_ENCODER_COUNTS_PER_REV);
 
     // leave the position in rotations
     shootCfg.encoder.positionConversionFactor(SHOOT_GEAR_RATIO);
@@ -381,8 +392,7 @@ public class ShooterSubsystem extends SubsystemBase {
     configureSparkMax(() -> azimuthPid.setSetpoint(
         azimuth_cmd,
         ControlType.kPosition,
-        ClosedLoopSlot.kSlot0,
-        0));
+        ClosedLoopSlot.kSlot0));
 
     // if in simulation set the encoder to the setpoint
     if (RobotBase.isSimulation()) {
@@ -399,8 +409,7 @@ public class ShooterSubsystem extends SubsystemBase {
     configureSparkMax(() -> hoodPid.setSetpoint(
         -1 * hoodPosition,
         ControlType.kPosition,
-        ClosedLoopSlot.kSlot0,
-        0));
+        ClosedLoopSlot.kSlot0));
 
     // if in simulation set the encoder to the setpoint
     if (RobotBase.isSimulation()) {
@@ -417,8 +426,7 @@ public class ShooterSubsystem extends SubsystemBase {
     configureSparkMax(() -> shootPid.setSetpoint(
         shootRPMs,
         ControlType.kVelocity,
-        ClosedLoopSlot.kSlot0,
-        0));
+        ClosedLoopSlot.kSlot0));
 
   }
 

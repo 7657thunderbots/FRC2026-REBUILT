@@ -47,29 +47,53 @@ public final class Constants {
     public static final int LIMIT_SW_DIO = 0; // limit switch digital IO number
     public static final Pose2d HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
-    public static final double SHOOT_RPMS = 100;
+    public static final double SHOOT_RPMS = 5000;
+
+    // About PID Coefficients
+    // They have units. The output of the sparkmax controller PID is in duty cycle.
+    // duty cycle can be thought of as the percentage of the battery voltage to
+    // apply to the motor
+    // The native units are all in rotations, but since we set the conversion
+    // factors rotations will become the unit we convert to
+    // kP - Duty Cycle per rotation
+    // kI - Duty Cycle per rotation*ms (percent output over time)
+    // kD - (Duty Cycle)*ms per rotation (how much the duty changed over time)
+    // kS - Volts - This number should be the first thing to tune and is the
+    // smallest output required to just make the motor turn
+    // kV - Volts per RPM - This number needs to be tuned but you can start with the
+    // motors Kv on the datasheet is the unloaded RPMs per 1 volt. 473 for a neo 1.1
+    // and 565 for a Vortex
+
     // Azimuth Motor Configuration
-    public static final int AZIMUTH_CAN_BUS_ID = 12;
+    public static final int AZIMUTH_CAN_BUS_ID = 10;
     public static final double AZIMUTH_KP = 0.00325;
     public static final double AZIMUTH_KD = 1.0;
     public static final double AZIMUTH_KI = 0.0;
+    public static final double AZIMUTH_KS = 0.01; // static friction feed forward
+    public static final double AZIMUTH_KV = 0.0; // velocity feed forward, not used if mode is position control
     public static final float AZIMUTH_GEAR_RATIO = 200 / 21; // 200 tooth turrent gear with 21 tooth drive gear
     public static final int AZIMUTH_ENCODER_COUNTS_PER_REV = Math.round(42 * AZIMUTH_GEAR_RATIO); // Gear ratio times
                                                                                                   // Neo Motor Encoder
                                                                                                   // 42 counts per rev
     // Hood Motor Configuration
-    public static final int HOOD_CAN_BUS_ID = 11;
+    public static final int HOOD_CAN_BUS_ID = 12;
     public static final double HOOD_KP = 0.003;
     public static final double HOOD_KD = 0.01;
     public static final double HOOD_KI = 0.0;
-    public static final float HOOD_GEAR_RATIO = 1 / 1; // The hood has a rack and pinion gear
+    public static final double HOOD_KS = 0.01; // static friction feed forward
+    public static final double HOOD_KV = 0.0; // velocity feed forward, not used if mode is position control
+    public static final float HOOD_GEAR_RATIO = 1 / 3; // The hood has a rack and pinion gear
     public static final int HOOD_ENCODER_COUNTS_PER_REV = Math.round(42 * HOOD_GEAR_RATIO);
 
     // Shoot motor configuation
-    public static final int SHOOT_CAN_BUS_ID = 10;
-    public static final double SHOOT_KP = 0.1;
-    public static final double SHOOT_KD = 0.1;
+    public static final int SHOOT_CAN_BUS_ID = 11;
+    public static final double SHOOT_KP = 0.0005;
+    public static final double SHOOT_KD = 0.0000;
     public static final double SHOOT_KI = 0.0;
+    public static final double SHOOT_KS = 0.01; // static friction feed forward
+    public static final double SHOOT_KV = 1 / 565; // neo vortex Kv
+    // shoter V 0.00215
+    // d filter 0.05
     public static final float SHOOT_GEAR_RATIO = 1 / 1; // The Shoot motor is direct drive on the shaft
     public static final int SHOOT_ENCODER_COUNTS_PER_REV = Math.round(42 * SHOOT_GEAR_RATIO);
   }
