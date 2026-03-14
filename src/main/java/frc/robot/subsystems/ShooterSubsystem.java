@@ -170,6 +170,7 @@ public class ShooterSubsystem extends SubsystemBase {
         AZIMUTH_KD);
     azimuthCfg.closedLoop.feedForward.kS(AZIMUTH_KS, ClosedLoopSlot.kSlot0);
     azimuthCfg.closedLoop.feedForward.kV(AZIMUTH_KV, ClosedLoopSlot.kSlot0);
+    azimuthCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     azimuthCfg.closedLoop.iZone(0.0);
     // The controller has a max range of -1 to 1
     azimuthCfg.closedLoop.outputRange(-1, 1);
@@ -226,8 +227,9 @@ public class ShooterSubsystem extends SubsystemBase {
         HOOD_KD, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.feedForward.kS(HOOD_KS, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.feedForward.kS(HOOD_KV, ClosedLoopSlot.kSlot0);
+    hoodCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.iZone(0.0);
-    // The controller has a max range of -1 to 1
+    // The controller has a max range of -1 to 1,
     hoodCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated encoder.
@@ -240,7 +242,8 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodCfg.softLimit.reverseSoftLimit(0);
     hoodCfg.softLimit.reverseSoftLimitEnabled(true);
 
-    // Configure hood counts per rev. In this case its the standard neo
+    // Configure hood counts per rev. In this case its the standard neo so I don't
+    // think this actually does anything, its fixed
     hoodCfg.encoder.countsPerRevolution(HOOD_ENCODER_COUNTS_PER_REV);
 
     double percentageToRevolution = 0.8 / HOOD_GEAR_RATIO;
