@@ -174,9 +174,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Configure feedback of the PID controller as the integrated encoder.
     azimuthCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    // Set up the controller to control based on 0 to 360
-    azimuthCfg.closedLoop.positionWrappingEnabled(true);
-    azimuthCfg.closedLoop.positionWrappingInputRange(0, 360);
+    // Set up the controller to not wrap since we want -90 to 90
+    azimuthCfg.closedLoop.positionWrappingEnabled(false);
+
+    // set up the controller to stop the motor when it hits the 90 degree limits
+    azimuthCfg.limitSwitch.limitSwitchPositionSensor(FeedbackSensor.kPrimaryEncoder);
+    azimuthCfg.softLimit.forwardSoftLimit(90);
+    azimuthCfg.softLimit.forwardSoftLimitEnabled(true);
+    azimuthCfg.softLimit.reverseSoftLimit(-90);
+    azimuthCfg.softLimit.reverseSoftLimitEnabled(true);
 
     // setup encoder so it understands how many counts are a single turret
     // revolution
@@ -222,11 +228,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Configure feedback of the PID controller as the integrated encoder.
     hoodCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    // Set up the controller to control based on 0 to 360
-    hoodCfg.closedLoop.positionWrappingEnabled(true);
-    // 0 to 100 percent of position range.
-    // TODO: Figure out how to invert this so it is positive
-    hoodCfg.closedLoop.positionWrappingInputRange(0, -100);
+
+    // set up the controller to stop the motor when it hits 100% position
+    hoodCfg.limitSwitch.limitSwitchPositionSensor(FeedbackSensor.kPrimaryEncoder);
+    hoodCfg.softLimit.forwardSoftLimit(100);
+    hoodCfg.softLimit.forwardSoftLimitEnabled(true);
+    hoodCfg.softLimit.reverseSoftLimit(0);
+    hoodCfg.softLimit.reverseSoftLimitEnabled(true);
 
     // Configure hood counts per rev. In this case its the standard neo
     hoodCfg.encoder.countsPerRevolution(HOOD_ENCODER_COUNTS_PER_REV);
