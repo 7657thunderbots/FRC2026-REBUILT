@@ -91,12 +91,12 @@ public class ShooterSubsystem extends SubsystemBase {
     azimuthPid = azimuthMotor.getClosedLoopController();
     azimuthEncoder = azimuthMotor.getEncoder();
 
-    hoodMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushed);
+    hoodMotor = new SparkMax(HOOD_CAN_BUS_ID, MotorType.kBrushless);
     // Get the onboard PID controller.
     hoodPid = hoodMotor.getClosedLoopController();
     hoodEncoder = hoodMotor.getEncoder();
 
-    shootMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushed);
+    shootMotor = new SparkMax(SHOOT_CAN_BUS_ID, MotorType.kBrushless);
     // Get the onboard PID controller.
     shootPid = shootMotor.getClosedLoopController();
     shootEncoder = shootMotor.getEncoder();
@@ -118,7 +118,6 @@ public class ShooterSubsystem extends SubsystemBase {
     setTargetPose(HUB_POSE);
     // set the hood to be at zero... it already should be
     setHoodPosition(0);
-
     // set the shooter velocity to zero
     setShootVelocity(0);
 
@@ -187,10 +186,6 @@ public class ShooterSubsystem extends SubsystemBase {
     azimuthCfg.softLimit.reverseSoftLimit(-90);
     azimuthCfg.softLimit.reverseSoftLimitEnabled(true);
 
-    // setup encoder so it understands how many counts are a single turret
-    // revolution
-    azimuthCfg.encoder.countsPerRevolution(AZIMUTH_ENCODER_COUNTS_PER_REV);
-
     double degreesPerRevolution = 360 / AZIMUTH_GEAR_RATIO;
     azimuthCfg.encoder.positionConversionFactor(degreesPerRevolution); // change turret rotations to degrees
 
@@ -241,10 +236,6 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodCfg.softLimit.forwardSoftLimitEnabled(true);
     hoodCfg.softLimit.reverseSoftLimit(0);
     hoodCfg.softLimit.reverseSoftLimitEnabled(true);
-
-    // Configure hood counts per rev. In this case its the standard neo so I don't
-    // think this actually does anything, its fixed
-    hoodCfg.encoder.countsPerRevolution(HOOD_ENCODER_COUNTS_PER_REV);
 
     double percentageToRevolution = 0.8 / HOOD_GEAR_RATIO;
     hoodCfg.encoder.positionConversionFactor(percentageToRevolution); // change hood rotations to percentage of position
