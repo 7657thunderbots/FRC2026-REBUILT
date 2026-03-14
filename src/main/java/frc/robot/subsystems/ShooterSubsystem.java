@@ -10,6 +10,8 @@ import static frc.robot.Constants.ShooterConstants.*;
 
 import java.util.function.Supplier;
 
+import javax.lang.model.util.ElementScanner14;
+
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -86,7 +88,7 @@ public class ShooterSubsystem extends SubsystemBase {
    **/
   public ShooterSubsystem(Supplier<Pose2d> pose_supplier, Field2d fieldObj) {
 
-    azimuthMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushed);
+    azimuthMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushless);
     // Get the onboard PID controller.
     azimuthPid = azimuthMotor.getClosedLoopController();
     azimuthEncoder = azimuthMotor.getEncoder();
@@ -364,6 +366,7 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  // TODO: we need to calibrate the azimuth encoder somehow...
   private void calibrateAzimuth() {
     // probably should make sure we don't wake up on the switch
     if (limitSwitch.get()) {
@@ -383,14 +386,24 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param azimuth_cmd The Robot relative angle to point the shooter
    */
   private void setTurretPosition(double azimuth_cmd) {
+    double final_cmd;
+    // restrict position command to the configured -90 to 90 range
+    if (azimuth_cmd > 90) {
+      final_cmd = 90;
+    } else if (azimuth_cmd < -90) {
+      final_cmd = -90;
+    } else {
+      final_cmd = azimuth_cmd;
+
+    }
     configureSparkMax(() -> azimuthPid.setSetpoint(
-        azimuth_cmd,
+        final_cmd,
         ControlType.kPosition,
         ClosedLoopSlot.kSlot0));
 
     // if in simulation set the encoder to the setpoint
     if (RobotBase.isSimulation()) {
-      azimuthEncoder.setPosition(azimuth_cmd);
+      azimuthEncoder.setPosition(final_cmd);
     }
   }
 
@@ -412,9 +425,9 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the controller for the shooter Hood position
+   * Sets the controller for the shooter outout velocity
    *
-   * @param hoodPosition the percentage from 0 to 100 of the range of motion
+   * @param shootRPMs the RPMs for the output flywheel
    */
   private void setShootVelocity(double shootRPMs) {
     configureSparkMax(() -> shootPid.setSetpoint(
@@ -487,7 +500,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // the angle
     Rotation2d bearingAngle = Rotation2d.fromRadians(Math.atan2(dy, dx));
 
-    return bearingAngle.getDegrees();
+    // adjust 0-360 to +/- 180
+    double bearingAdj = bearingAngle.getDegrees();
+    if (bearingAdj > 180) {
+      bearingAdj = 360 - bearingAdj;
+    }
+    return bearingAdj;
   }
 
   // find the distance to the current target
