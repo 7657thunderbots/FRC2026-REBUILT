@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.ShooterConstants.*;
+import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 
 import java.util.function.Supplier;
 
@@ -23,6 +24,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkMaxConfig.Presets;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,7 +48,6 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkClosedLoopController azimuthPid;
   private final SparkMax azimuthMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder azimuthEncoder; // Integrated NEO encoder.
-  private SparkMaxConfig azimuthCfg = new SparkMaxConfig();
 
   /**
    * Objects for the hood control
@@ -54,15 +55,13 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkClosedLoopController hoodPid;
   private final SparkMax hoodMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder hoodEncoder; // Integrated NEO encoder.
-  private SparkMaxConfig hoodCfg = new SparkMaxConfig();
 
   /**
    * Objects for the shoot motor control
    */
   private final SparkClosedLoopController shootPid;
   private final SparkMax shootMotor; // sparkmax driving the big azimuth gear
-  private final RelativeEncoder shootEncoder; // Integrated NEO encoder.
-  private SparkMaxConfig shootCfg = new SparkMaxConfig();
+  private final RelativeEncoder shootEncoder; // Integrated encoder.
 
   private final DigitalInput limitSwitch = new DigitalInput(LIMIT_SW_DIO);
   private final Field2d field;
@@ -155,15 +154,13 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    **/
   private void configureAzimuthMotor() {
-    // clear sparkmax faults
-    clearStickyFaults(azimuthMotor);
+    SparkMaxConfig azimuthCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
 
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
-    azimuthCfg.voltageCompensation(12.0);
-    azimuthCfg.smartCurrentLimit(20);
+    azimuthCfg.voltageCompensation(VOLTAGE_COMPENSATION);
 
-    // Time to go from zero to full throttle
+    // Time to go from zero to full throttle at the controller output
     azimuthCfg.closedLoopRampRate(0.25);
 
     // PID control constants
@@ -172,14 +169,11 @@ public class ShooterSubsystem extends SubsystemBase {
     azimuthCfg.closedLoop.feedForward.kS(AZIMUTH_KS, ClosedLoopSlot.kSlot0);
     azimuthCfg.closedLoop.feedForward.kV(AZIMUTH_KV, ClosedLoopSlot.kSlot0);
     azimuthCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
-    azimuthCfg.closedLoop.iZone(0.0);
     // The controller has a max range of -1 to 1
     azimuthCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated encoder.
     azimuthCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    // Set up the controller to not wrap since we want -90 to 90
-    azimuthCfg.closedLoop.positionWrappingEnabled(false);
 
     // set up the controller to stop the motor when it hits the 90 degree limits
     azimuthCfg.limitSwitch.limitSwitchPositionSensor(FeedbackSensor.kPrimaryEncoder);
@@ -196,9 +190,12 @@ public class ShooterSubsystem extends SubsystemBase {
     azimuthCfg.encoder.velocityConversionFactor(degreesPerRevolution / 60); // revolutions per minute to degrees per
                                                                             // second
 
-    // Send the configuration to the sparkmax
-    azimuthMotor.configure(azimuthCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    // Send the configuration to the sparkmax, reset to defaults prior to
+    // configuration
+    azimuthMotor.configure(azimuthCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    // clear sparkmax faults
+    clearStickyFaults(azimuthMotor);
   }
 
   /**
@@ -208,13 +205,11 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    **/
   private void configureHoodMotor() {
-    // clear sparkmax faults
-    clearStickyFaults(hoodMotor);
+    SparkMaxConfig hoodCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
 
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
-    hoodCfg.voltageCompensation(12.0);
-    hoodCfg.smartCurrentLimit(20);
+    hoodCfg.voltageCompensation(VOLTAGE_COMPENSATION);
 
     // Time to go from zero to full throttle
     hoodCfg.closedLoopRampRate(0.25);
@@ -225,7 +220,7 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodCfg.closedLoop.feedForward.kS(HOOD_KS, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.feedForward.kS(HOOD_KV, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
-    hoodCfg.closedLoop.iZone(0.0);
+
     // The controller has a max range of -1 to 1,
     hoodCfg.closedLoop.outputRange(-1, 1);
 
@@ -239,18 +234,21 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodCfg.softLimit.reverseSoftLimit(0);
     hoodCfg.softLimit.reverseSoftLimitEnabled(true);
 
-    double percentageToRevolution = 0.8 / HOOD_GEAR_RATIO;
+    // The hood range is about 0 to 0.8 rotations of the motor, but we want to
+    // control it based on percentage of that range. So we need to convert the
+    // position and velocity units to be in percentage of the range instead of
+    // rotations or RPMs
+    double percentageToRevolution = (0.8 / HOOD_GEAR_RATIO) * 100;
     hoodCfg.encoder.positionConversionFactor(percentageToRevolution); // change hood rotations to percentage of position
                                                                       // range
 
-    // velocity is in revolutions per minute and we want to convert to percent per
-    // second. So divide percent per revolution by 60
     hoodCfg.encoder.velocityConversionFactor(percentageToRevolution / 60); // revolutions per minute to percent range
-                                                                           // per
-    // second
+                                                                           // per second
 
     // Send the configuration to the sparkmax
-    hoodMotor.configure(hoodCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    hoodMotor.configure(hoodCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // clear sparkmax faults
+    clearStickyFaults(hoodMotor);
 
   }
 
@@ -262,13 +260,11 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    **/
   private void configureShootMotor() {
-    // clear sparkmax faults
-    clearStickyFaults(shootMotor);
+    SparkMaxConfig shootCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_Vortex);
 
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
-    shootCfg.voltageCompensation(12.0);
-    shootCfg.smartCurrentLimit(40);
+    shootCfg.voltageCompensation(VOLTAGE_COMPENSATION);
 
     // Time to go from zero to full throttle at the controller output
     // We want spin up to be quick
@@ -280,19 +276,13 @@ public class ShooterSubsystem extends SubsystemBase {
     shootCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     shootCfg.closedLoop.feedForward.kS(SHOOT_KS, ClosedLoopSlot.kSlot0);
     shootCfg.closedLoop.feedForward.kS(SHOOT_KV, ClosedLoopSlot.kSlot0);
-    shootCfg.closedLoop.iZone(0.0);
+
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
     shootCfg.closedLoop.outputRange(0, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
     shootCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    // We don't care about position for this motor, we are controlling on velocity
-    shootCfg.closedLoop.positionWrappingEnabled(false);
-
-    // Configure hood counts per rev. This actually doesn't matter because we are
-    // using the NEO internal encoder
-    // shootCfg.encoder.countsPerRevolution(SHOOT_ENCODER_COUNTS_PER_REV);
 
     // leave the position in rotations
     shootCfg.encoder.positionConversionFactor(SHOOT_GEAR_RATIO);
@@ -301,7 +291,10 @@ public class ShooterSubsystem extends SubsystemBase {
     shootCfg.encoder.velocityConversionFactor(SHOOT_GEAR_RATIO);
 
     // Send the configuration to the sparkmax
-    shootMotor.configure(shootCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    shootMotor.configure(shootCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // clear sparkmax faults
+    clearStickyFaults(shootMotor);
 
   }
 

@@ -19,8 +19,10 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkMaxConfig.Presets;
 
 import static frc.robot.Constants.IntakeConstants.*;
+import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 
 import java.util.function.Supplier;
 
@@ -41,7 +43,6 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkClosedLoopController pivotPid;
   private final SparkMax pivotMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
-  private SparkMaxConfig pivotCfg = new SparkMaxConfig();
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
@@ -92,14 +93,11 @@ public class IntakeSubsystem extends SubsystemBase {
    * 
    **/
   private void configureIntakeMotor() {
-    SparkMaxConfig intakeCfg = new SparkMaxConfig();
-    // clear sparkmax faults
-    clearStickyFaults(intakeMotor);
+    SparkMaxConfig intakeCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
 
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
-    intakeCfg.voltageCompensation(12.0);
-    intakeCfg.smartCurrentLimit(40);
+    intakeCfg.voltageCompensation(VOLTAGE_COMPENSATION);
     intakeCfg.inverted(true);
 
     // Time to go from zero to full throttle at the controller output
@@ -112,19 +110,12 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     intakeCfg.closedLoop.feedForward.kS(INTAKE_KS, ClosedLoopSlot.kSlot0);
     intakeCfg.closedLoop.feedForward.kV(INTAKE_KV, ClosedLoopSlot.kSlot0);
-    intakeCfg.closedLoop.iZone(0.0);
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
     intakeCfg.closedLoop.outputRange(0, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
     intakeCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    // We don't care about position for this motor, we are controlling on velocity
-    intakeCfg.closedLoop.positionWrappingEnabled(false);
-
-    // Configure hood counts per rev. This actually doesn't matter because we are
-    // using the NEO internal encoder
-    // Cfg.encoder.countsPerRevolution(INTAKE_ENCODER_COUNTS_PER_REV);
 
     // leave the position in rotations
     intakeCfg.encoder.positionConversionFactor(INTAKE_GEAR_RATIO);
@@ -133,21 +124,23 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeCfg.encoder.velocityConversionFactor(INTAKE_GEAR_RATIO);
 
     // Send the configuration to the sparkmax
-    intakeMotor.configure(intakeCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    intakeMotor.configure(intakeCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // clear sparkmax faults after writing configuration
+    clearStickyFaults(intakeMotor);
 
   }
 
   private void configurePivotMotor() {
+    SparkMaxConfig pivotCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
     // clear sparkmax faults
     clearStickyFaults(pivotMotor);
 
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
-    pivotCfg.voltageCompensation(12.0);
-    pivotCfg.smartCurrentLimit(40);
+    pivotCfg.voltageCompensation(VOLTAGE_COMPENSATION);
 
     // Time to go from zero to full throttle at the controller output
-    // We want spin up to be quick
+    // TODO: This is really not the right way to do this. We should use max motion
     pivotCfg.closedLoopRampRate(2);
 
     // PID control constants
@@ -155,20 +148,13 @@ public class IntakeSubsystem extends SubsystemBase {
         PIVOT_KD, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kS(PIVOT_KS, ClosedLoopSlot.kSlot0);
-    pivotCfg.closedLoop.feedForward.kS(PIVOT_KV, ClosedLoopSlot.kSlot0);
-    pivotCfg.closedLoop.iZone(0.0);
+    pivotCfg.closedLoop.feedForward.kV(PIVOT_KV, ClosedLoopSlot.kSlot0);
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
     pivotCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
     pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    // We don't care about position for this motor, we are controlling on velocity
-    pivotCfg.closedLoop.positionWrappingEnabled(false);
-
-    // Configure hood counts per rev. This actually doesn't matter because we are
-    // using the NEO internal encoder
-    // Cfg.encoder.countsPerRevolution(SHOOT_ENCODER_COUNTS_PER_REV);
 
     // leave the position in rotations
     pivotCfg.encoder.positionConversionFactor(PIVOT_GEAR_RATIO);
@@ -176,8 +162,9 @@ public class IntakeSubsystem extends SubsystemBase {
     // We will control based on RPMs, so no conversion
     pivotCfg.encoder.velocityConversionFactor(PIVOT_GEAR_RATIO);
 
-    // Send the configuration to the sparkmax
-    pivotMotor.configure(pivotCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    // Send the configuration to the sparkmax, reset to safe parameters and store
+    // the new configuration so it is persistent
+    pivotMotor.configure(pivotCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
 
@@ -200,7 +187,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param pivotPosition the RPMs for the output flywheel
    */
   private void setPivotPosition(double position) {
-    configureSparkMax(() -> intakePid.setSetpoint(
+    configureSparkMax(() -> pivotPid.setSetpoint(
         position,
         ControlType.kPosition,
         ClosedLoopSlot.kSlot0));

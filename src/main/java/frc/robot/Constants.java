@@ -45,6 +45,13 @@ public final class Constants {
     public static final double TURN_CONSTANT = 4;
   }
 
+  public static class DefaultSparkMaxConfig {
+    // Default SparkMaxConfig values for all motors
+
+    // Setup to run at 12V
+    public static final double VOLTAGE_COMPENSATION = 12.0;
+  }
+
   public static class IntakeConstants {
 
     public static final double INTAKE_SPEED = 800.0;
