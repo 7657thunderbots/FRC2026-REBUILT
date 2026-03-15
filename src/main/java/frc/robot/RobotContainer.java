@@ -22,9 +22,8 @@ public class RobotContainer {
   // m_swerveSubsystem.getSwerveDrive().field,
   // m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
 
-  // private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(()
-  // -> m_swerveSubsystem.getPose(),
-  // m_swerveSubsystem.getField());
+  private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(() -> m_swerveSubsystem.getPose(),
+      m_swerveSubsystem.getField());
 
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
 

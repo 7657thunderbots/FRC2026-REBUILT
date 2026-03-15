@@ -99,6 +99,22 @@ public final class Constants {
 
   public static class ShooterConstants {
     public static final int LIMIT_SW_DIO = 0; // limit switch digital IO number
+    // forward is +x, left is +y.
+    // the chassis is 23" square and the shooter is 12.5" square mounted to the back
+    // left corner 2 inches inset from the frame perimeter
+    // the back right corner of the bot would be at 23/2 inches = 11.5 inches.
+    // the shooter corner is then at 11.5 - 2 inches = 9.5 inches from the center of
+    // the robot in the x direction and the same in y. 11.5 - 12.5/2 inches = 5.75
+    // inches from the center of the robot in the x and y direction. The shooter is
+    // also rotated 180 degrees from the forward facing direction of the robot, so
+    // we need to add a rotation of 180 degrees to get from the robot pose to the
+    // shooter pose.
+    // So the transform should be -X 5.75 inches and +Y 5.75 inches with a rotation
+    // of 180 degrees.
+    public static final Transform2d ROBOT_TO_SHOOTER = new Transform2d(
+        new Translation2d(Units.inchesToMeters(-5.75), Units.inchesToMeters(5.75)),
+        Rotation2d.fromDegrees(180.0));
+
     public static final Pose2d BLUE_HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
     public static final Pose2d RED_HUB_POSE = new Pose2d(11.9, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged

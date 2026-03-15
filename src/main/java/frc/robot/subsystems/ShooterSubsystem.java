@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.ShooterConstants.*;
 import static frc.robot.Constants.DefaultSparkMaxConfig.*;
@@ -22,6 +23,8 @@ import com.revrobotics.spark.config.SparkMaxConfig.Presets;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -31,6 +34,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -61,9 +66,18 @@ public class ShooterSubsystem extends SubsystemBase {
   private final Field2d field;
   private final StringLogEntry shooterLog = new StringLogEntry(DataLogManager.getLog(), "/shooter/events");
   private final DoublePublisher turretBearingPublisher;
+  private final DoublePublisher turretCalcPublisher;
   private final StringPublisher targetModePublisher;
   // private final DoublePublisher
   private Pose2d targetPose;
+
+  // The shooterPose is always fixed offset from the robot pose, so we can
+  // calculate it based on the robot pose and a constant transform that we define
+  // in constants. This code uses the term turret Pose to refer to the postiion of
+  // the turret
+  // turret and shooter pose are equal when the turrent is pointed at 0 degrees
+  // (straight ahead or backwards depending on how you want to think about it
+  // since the turrent is mounted facing the rear of the robot)
   private Pose2d shooterPose;
 
   private Double manualBearingSetpoint = 0.0;
@@ -120,11 +134,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // set the shooter velocity to zero
     setShootVelocity(0);
 
-    // add a turret pose to the field object so we can see it in simulation
-    Pose2d currAzimuthPose = robot_pose.get();
+    setTurretPosition(0);
 
-    shooterPose = new Pose2d(currAzimuthPose.getX(), currAzimuthPose.getY(),
-        currAzimuthPose.getRotation().plus(getAzimuthPosition()));
+    // offset the shooter pose from the robot using the transform defined in
+    // constants. This will be used to calculate the bearing to the target and also
+    // just to visualize where the shooter is pointing on the field in simulation
+    shooterPose = robotToShooter();
 
     // Only update field object in simulation
     if (RobotBase.isSimulation()) {
@@ -137,6 +152,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     turretBearingPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
         "shooter/targetbearing").publish();
+
+    turretCalcPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
+        "shooter/debug").publish();
+    turretCalcPublisher.set(0);
 
     targetModePublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getStringTopic(
         "shooter/targetmode").publish();
@@ -301,6 +320,7 @@ public class ShooterSubsystem extends SubsystemBase {
    * @return Return the robot relative rotation of the shooter
    */
   public Rotation2d getAzimuthPosition() {
+
     return Rotation2d.fromDegrees(azimuthEncoder.getPosition());
   }
 
@@ -374,26 +394,25 @@ public class ShooterSubsystem extends SubsystemBase {
   /**
    * Sets the controller for the shooter azimuth position
    *
-   * @param azimuth_cmd The Robot relative angle to point the shooter
+   * @param azimuth_cmd The shooter relative angle to point the shooter
    */
   private void setTurretPosition(double azimuth_cmd) {
-    double final_cmd;
-    // restrict position command to the configured -90 to 90 range
-    if (azimuth_cmd > 90) {
-      final_cmd = 90;
-    } else if (azimuth_cmd < -90) {
-      final_cmd = -90;
-    } else {
-      final_cmd = azimuth_cmd;
 
+    // restrict position command to the configured -90 to 90 range
+    if (azimuth_cmd > 90.0) {
+      azimuth_cmd = 90.0;
+    } else if (azimuth_cmd < -90.0) {
+      azimuth_cmd = -90.0;
     }
+    System.out.println("Turret Command: " + azimuth_cmd);
+    final double final_cmd = azimuth_cmd;
     configureSparkMax(() -> azimuthPid.setSetpoint(
         final_cmd,
         ControlType.kPosition,
         ClosedLoopSlot.kSlot0));
 
     // if in simulation set the encoder to the setpoint
-    if (RobotBase.isSimulation()) {
+    if (RobotBase.isSimulation() && (DriverStation.isAutonomous() || DriverStation.isTeleop())) {
       azimuthEncoder.setPosition(final_cmd);
     }
   }
@@ -451,14 +470,39 @@ public class ShooterSubsystem extends SubsystemBase {
     configureSparkMax(motor::clearFaults);
   }
 
+  private Pose2d robotToShooter() {
+    Pose2d currRobotPose = robot_pose.get();
+
+    // adjust the robot pose by a transform that defines the fixed position of the
+    // shooter relative to the robot.
+    return currRobotPose.transformBy(ROBOT_TO_SHOOTER);
+  }
+
+  private Pose2d robotToTurret() {
+    // There are 3 steps to get the turret position. First we need the shooter
+    // position based on the robot position and the fixed transform from the robot
+    // to the shooter. Then we need to get the rotation of the turret relative to
+    // the shooter from the azimuth encoder. Finally we can apply that rotation as a
+    // transform to the shooter pose to get the turret pose.
+
+    // get the shooter position
+    Pose2d baseShooterPose = robotToShooter();
+    // get the encoder position which is always relative to the shooter, so it gives
+    // us the rotation of the turret relative to the shooter
+    Rotation2d turretRot = Rotation2d.fromDegrees(getAzimuthPosition().getDegrees());
+
+    // now create a transform which will apply the turret rotation to the shooter
+    // pose, but not change the translation so it rotates about its center
+    Transform2d turretTransform = new Transform2d(Translation2d.kZero, turretRot);
+
+    // apply the transform to the shooter pose to get the turret pose
+    return baseShooterPose.transformBy(turretTransform);
+  }
+
   @Override
   public void periodic() {
 
-    // get current robot pose
-    Pose2d currRobotPose = robot_pose.get();
-    // adjust the robot pose based upon the encoder position to get the shooter Pose
-    shooterPose = new Pose2d(currRobotPose.getX(), currRobotPose.getY(),
-        currRobotPose.getRotation().plus(getAzimuthPosition()));
+    shooterPose = robotToShooter();
 
     double targetBearing = manualBearingSetpoint;
     // Based on the updated positions above, find the bearing angle to the target if
@@ -477,25 +521,34 @@ public class ShooterSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
 
     // Update turret pose in the field object so we can see it in simulation
-    field.getObject("turretPose").setPose(shooterPose);
+    field.getObject("turretPose").setPose(robotToTurret());
 
   }
 
   private double calculateTargetBearing(Pose2d target) {
-    // Calculate the difference in X and Y position from the shooter to the target
-    double dx = target.getX() - shooterPose.getX();
-    double dy = target.getY() - shooterPose.getY();
+    // This is just finding the difference in X and Y between the target and
+    // shooter.
+    // think of it as
+    // deltax = targetX - shooterX
+    // deltay = targetY - shooterY.
+    // We do it this way so we can rotate the delta into the shooters frame of
+    // reference and then just
+    // use atan2 to get the angle to the target relative to where the shooter is
+    // pointing instead of relative to the field which would be more complicated
+    // when we want to find the angle from the turret
+    Translation2d deltaField = target.getTranslation().minus(shooterPose.getTranslation());
+
+    // this rootate into the shooters frame of reference by using the inverse of the
+    // shooters rotation.
+    Translation2d deltaTurret = deltaField.rotateBy(shooterPose.getRotation().unaryMinus());
 
     // dx and dy are two sides of a right triangle with its hypotenuse being the
     // line from the shooter to the hub. We can use the arc tangent function to get
     // the angle
-    Rotation2d bearingAngle = Rotation2d.fromRadians(Math.atan2(dy, dx));
+    Rotation2d shooterRelAngle = Rotation2d.fromRadians(Math.atan2(deltaTurret.getY(), deltaTurret.getX()));
 
-    // adjust 0-360 to +/- 180
-    double bearingAdj = bearingAngle.getDegrees();
-    if (bearingAdj > 180) {
-      bearingAdj = 360 - bearingAdj;
-    }
+    double bearingAdj = shooterRelAngle.getDegrees();
+
     return bearingAdj;
   }
 
