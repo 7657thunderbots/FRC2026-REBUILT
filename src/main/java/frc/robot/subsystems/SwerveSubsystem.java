@@ -27,6 +27,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -63,17 +64,17 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     private final boolean visionDriveTest = true;
 
+    private Pose2d startingPose;
+
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      *
      * @param directory Directory of swerve drive config files.
      */
     public SwerveSubsystem(File directory) {
-        boolean blueAlliance = true;
-        Pose2d startingPose = blueAlliance ? Constants.SIM_START_POSE
-                : new Pose2d(new Translation2d(Meter.of(16),
-                        Meter.of(4)),
-                        Rotation2d.fromDegrees(0));
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+        Pose2d startingPose = alliance == Alliance.Blue ? Constants.BLUE_START_POSE : Constants.RED_START_POSE;
+        this.startingPose = startingPose;
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -108,20 +109,6 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.stopOdometryThread();
         }
         setupPathPlanner();
-    }
-
-    /**
-     * Construct the swerve drive.
-     *
-     * @param driveCfg      SwerveDriveConfiguration for the swerve.
-     * @param controllerCfg Swerve Controller.
-     */
-    public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg) {
-        swerveDrive = new SwerveDrive(driveCfg,
-                controllerCfg,
-                Constants.MAX_SPEED,
-                new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
-                        Rotation2d.fromDegrees(0)));
     }
 
     /**

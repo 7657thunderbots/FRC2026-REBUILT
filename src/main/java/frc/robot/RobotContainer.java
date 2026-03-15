@@ -17,8 +17,10 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/neo"));
 
-  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(() -> m_swerveSubsystem.getPose(),
-      m_swerveSubsystem.getSwerveDrive().field, m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
+  // private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(() ->
+  // m_swerveSubsystem.getPose(),
+  // m_swerveSubsystem.getSwerveDrive().field,
+  // m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
 
   // private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(()
   // -> m_swerveSubsystem.getPose(),
@@ -32,8 +34,8 @@ public class RobotContainer {
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(
       m_swerveSubsystem.getSwerveDrive(),
-      () -> m_driverController.getLeftX(),
-      () -> m_driverController.getLeftY() * -1)
+      () -> m_driverController.getLeftY() * -1,
+      () -> m_driverController.getLeftX() * -1)
       .withControllerRotationAxis(m_driverController::getRightX)
       .deadband(OperatorConstants.DEADBAND)
       .scaleTranslation(0.8)
