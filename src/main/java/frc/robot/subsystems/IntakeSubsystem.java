@@ -132,8 +132,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private void configurePivotMotor() {
     SparkMaxConfig pivotCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
-    // clear sparkmax faults
-    clearStickyFaults(pivotMotor);
 
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
@@ -166,6 +164,8 @@ public class IntakeSubsystem extends SubsystemBase {
     // the new configuration so it is persistent
     pivotMotor.configure(pivotCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    // clear sparkmax faults
+    clearStickyFaults(pivotMotor);
   }
 
   /**
