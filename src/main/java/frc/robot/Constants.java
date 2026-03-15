@@ -75,6 +75,28 @@ public final class Constants {
 
   }
 
+  public static class SpindexerConstants {
+    // Kicker motor (replaces intake)
+    public static final double KICKER_SPEED = 800.0;
+    public static final int KICKER_CAN_BUS_ID = 20;
+    public static final double KICKER_KP = 0.0005;
+    public static final double KICKER_KD = 0.0;
+    public static final double KICKER_KI = 0.0;
+    public static final double KICKER_KS = 0.155;
+    public static final double KICKER_KV = 0.0107;
+    public static final double KICKER_GEAR_RATIO = 1.0 / 1.0;
+
+    // Spin Motor Constants
+    public static final double SPINDEXER_SPEED = 800.0;
+    public static final int SPIN_CAN_BUS_ID = 21;
+    public static final double SPIN_KP = 0.1;
+    public static final double SPIN_KD = 0.0;
+    public static final double SPIN_KI = 0.0;
+    public static final double SPIN_KS = 3.5;
+    public static final double SPIN_KV = 0.0107;
+    public static final double SPIN_GEAR_RATIO = 1.0 / 1.0;
+  }
+
   public static class ShooterConstants {
     public static final int LIMIT_SW_DIO = 0; // limit switch digital IO number
 
