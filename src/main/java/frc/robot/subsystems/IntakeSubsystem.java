@@ -1,0 +1,270 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.subsystems;
+
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
+
+import com.revrobotics.REVLibError;
+import com.revrobotics.RelativeEncoder;
+
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import static frc.robot.Constants.IntakeConstants.*;
+
+import java.util.function.Supplier;
+
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class IntakeSubsystem extends SubsystemBase {
+
+  /**
+   * Objects for the shoot motor control
+   */
+  private final SparkClosedLoopController intakePid;
+  private final SparkMax intakeMotor; // sparkmax driving the big azimuth gear
+  private final RelativeEncoder intakeEncoder; // Integrated NEO encoder.
+
+  private final SparkClosedLoopController pivotPid;
+  private final SparkMax pivotMotor; // sparkmax driving the big azimuth gear
+  private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
+  private SparkMaxConfig pivotCfg = new SparkMaxConfig();
+
+  /** Creates a new IntakeSubsystem. */
+  public IntakeSubsystem() {
+
+    intakeMotor = new SparkMax(INTAKE_CAN_BUS_ID, MotorType.kBrushless);
+    // Get the onboard PID controller.
+    intakePid = intakeMotor.getClosedLoopController();
+    intakeEncoder = intakeMotor.getEncoder();
+
+    pivotMotor = new SparkMax(PIVOT_CAN_BUS_ID, MotorType.kBrushless);
+    // Get the onboard PID controller.
+    pivotPid = pivotMotor.getClosedLoopController();
+    pivotEncoder = pivotMotor.getEncoder();
+
+    intakeEncoder.setPosition(0);
+    pivotEncoder.setPosition(0);
+
+    configureIntakeMotor();
+
+    // configurePivotMotor();
+
+    // set the intake to be at zero... it already should be
+    setIntakeVelocity(0);
+    // setPivotPosition(0);
+  }
+
+  /**
+   * Run the configuration until it succeeds or times out.
+   *
+   * @param config Lambda supplier returning the error state.
+   */
+  private void configureSparkMax(Supplier<REVLibError> config) {
+
+    for (int i = 0; i < 4; i++) {
+      if (config.get() == REVLibError.kOk) {
+        return;
+      }
+      Timer.delay(Milliseconds.of(5).in(Seconds));
+    }
+    // failureConfiguringAlert.set(true);
+  }
+
+  /**
+   * Sets up the shooter control Sparkmax / Neo to control the output velocity of
+   * the shooter
+   * All of thee parameters can also be found in the REV 2.0 GUI. If they don't
+   * work there, they won't work here
+   * 
+   **/
+  private void configureIntakeMotor() {
+    SparkMaxConfig intakeCfg = new SparkMaxConfig();
+    // clear sparkmax faults
+    clearStickyFaults(intakeMotor);
+
+    // Setup the Sparkmax to control the NEO
+    // These are the same Parameters from the REV 2.0 GUI
+    intakeCfg.voltageCompensation(12.0);
+    intakeCfg.smartCurrentLimit(40);
+    intakeCfg.inverted(true);
+
+    // Time to go from zero to full throttle at the controller output
+    // We want spin up to be quick
+    intakeCfg.closedLoopRampRate(1);
+
+    // PID control constants
+    intakeCfg.closedLoop.pid(INTAKE_KP, INTAKE_KI,
+        INTAKE_KD, ClosedLoopSlot.kSlot0);
+    intakeCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
+    intakeCfg.closedLoop.feedForward.kS(INTAKE_KS, ClosedLoopSlot.kSlot0);
+    intakeCfg.closedLoop.feedForward.kV(INTAKE_KV, ClosedLoopSlot.kSlot0);
+    intakeCfg.closedLoop.iZone(0.0);
+    // The controller has a max range of -1 to 1, we don't want it to ever run in
+    // reverse so set to 0 to 1
+    intakeCfg.closedLoop.outputRange(0, 1);
+
+    // Configure feedback of the PID controller as the integrated Hall encoder.
+    intakeCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    // We don't care about position for this motor, we are controlling on velocity
+    intakeCfg.closedLoop.positionWrappingEnabled(false);
+
+    // Configure hood counts per rev. This actually doesn't matter because we are
+    // using the NEO internal encoder
+    // Cfg.encoder.countsPerRevolution(INTAKE_ENCODER_COUNTS_PER_REV);
+
+    // leave the position in rotations
+    intakeCfg.encoder.positionConversionFactor(INTAKE_GEAR_RATIO);
+
+    // We will control based on RPMs, so no conversion
+    intakeCfg.encoder.velocityConversionFactor(INTAKE_GEAR_RATIO);
+
+    // Send the configuration to the sparkmax
+    intakeMotor.configure(intakeCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+  }
+
+  private void configurePivotMotor() {
+    // clear sparkmax faults
+    clearStickyFaults(pivotMotor);
+
+    // Setup the Sparkmax to control the NEO
+    // These are the same Parameters from the REV 2.0 GUI
+    pivotCfg.voltageCompensation(12.0);
+    pivotCfg.smartCurrentLimit(40);
+
+    // Time to go from zero to full throttle at the controller output
+    // We want spin up to be quick
+    pivotCfg.closedLoopRampRate(2);
+
+    // PID control constants
+    pivotCfg.closedLoop.pid(PIVOT_KP, PIVOT_KI,
+        PIVOT_KD, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.feedForward.kS(PIVOT_KS, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.feedForward.kS(PIVOT_KV, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.iZone(0.0);
+    // The controller has a max range of -1 to 1, we don't want it to ever run in
+    // reverse so set to 0 to 1
+    pivotCfg.closedLoop.outputRange(-1, 1);
+
+    // Configure feedback of the PID controller as the integrated Hall encoder.
+    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    // We don't care about position for this motor, we are controlling on velocity
+    pivotCfg.closedLoop.positionWrappingEnabled(false);
+
+    // Configure hood counts per rev. This actually doesn't matter because we are
+    // using the NEO internal encoder
+    // Cfg.encoder.countsPerRevolution(SHOOT_ENCODER_COUNTS_PER_REV);
+
+    // leave the position in rotations
+    pivotCfg.encoder.positionConversionFactor(PIVOT_GEAR_RATIO);
+
+    // We will control based on RPMs, so no conversion
+    pivotCfg.encoder.velocityConversionFactor(PIVOT_GEAR_RATIO);
+
+    // Send the configuration to the sparkmax
+    pivotMotor.configure(pivotCfg, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+  }
+
+  /**
+   * Sets the controller for the shooter outout velocity
+   *
+   * @param intakeRPMS the RPMs for the output flywheel
+   */
+  private void setIntakeVelocity(double intakeRPMs) {
+    configureSparkMax(() -> intakePid.setSetpoint(
+        intakeRPMs,
+        ControlType.kVelocity,
+        ClosedLoopSlot.kSlot0));
+
+  }
+
+  /**
+   * Sets the controller for the shooter outout velocity
+   *
+   * @param pivotPosition the RPMs for the output flywheel
+   */
+  private void setPivotPosition(double position) {
+    configureSparkMax(() -> intakePid.setSetpoint(
+        position,
+        ControlType.kPosition,
+        ClosedLoopSlot.kSlot0));
+
+  }
+
+  /**
+   * Clear the sticky faults on the motor controller.
+   */
+  private void clearStickyFaults(SparkMax motor) {
+    configureSparkMax(motor::clearFaults);
+  }
+
+  /**
+   * Engage the shooter motor
+   * return motor speed to zero when command ends
+   * resulting in a toggle
+   *
+   * @return a command
+   */
+  public Command engageIntake() {
+
+    return run(
+        () -> {
+          this.setIntakeVelocity(INTAKE_SPEED);
+        }).finallyDo(() -> {
+          this.setIntakeVelocity(0);
+        });
+  }
+
+  /**
+   * Engage the shooter motor
+   * return motor speed to zero when command ends
+   * resulting in a toggle
+   *
+   * @return a command
+   */
+  public Command setIntakePivotPosition(double position) {
+
+    return run(
+        () -> {
+          this.setPivotPosition(position);
+        });
+
+  }
+
+  /**
+   * An example method querying a boolean state of the subsystem (for example, a
+   * digital sensor).
+   *
+   * @return value of some boolean subsystem state, such as a digital sensor.
+   */
+  public boolean exampleCondition() {
+    // Query some boolean state, such as a digital sensor.
+    return false;
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // This method will be called once per scheduler run during simulation
+  }
+}

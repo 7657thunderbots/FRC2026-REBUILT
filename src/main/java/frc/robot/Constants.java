@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
@@ -43,8 +44,43 @@ public final class Constants {
     public static final double TURN_CONSTANT = 4;
   }
 
+  public static class IntakeConstants {
+    // pivot 5 motor 1 intkae
+
+    public static final double INTAKE_SPEED = 800.0;
+    // Azimuth Motor Configuration
+    public static final int INTAKE_CAN_BUS_ID = 13;
+    public static final double INTAKE_KP = 0.0005;
+    public static final double INTAKE_KD = 0.0;
+    public static final double INTAKE_KI = 0.0;
+    public static final double INTAKE_KS = 0.155; // static friction feed forward
+    public static final double INTAKE_KV = 0.0107; // velocity feed forward, not used if mode is position control
+    public static final double INTAKE_GEAR_RATIO = 0.2; //
+    // public static final int INTaKE_ENCODER_COUNTS_PER_REV = Math.round(42 *
+    // INTAKE_GEAR_RATIO); // Gear ratio times
+    // Neo Motor Encoder
+    // 42 counts per rev
+
+    // Azimuth Motor Configuration
+    public static final int PIVOT_CAN_BUS_ID = 16;
+    public static final double PIVOT_KP = 0.1;
+    public static final double PIVOT_KD = 0.0;
+    public static final double PIVOT_KI = 0.0;
+    public static final double PIVOT_KS = 3.5; // static friction feed forward
+    public static final double PIVOT_KV = 0.0107; // velocity feed forward, not used if mode is position control
+    public static final float PIVOT_GEAR_RATIO = 1 / 5; // 200 tooth turrent gear with 21 tooth drive gear
+    public static final int PIVOT_ENCODER_COUNTS_PER_REV = Math.round(42 * PIVOT_GEAR_RATIO); // Gear ratio times
+                                                                                              // Neo Motor Encoder
+                                                                                              // 42 counts per rev
+
+  }
+
   public static class ShooterConstants {
     public static final int LIMIT_SW_DIO = 0; // limit switch digital IO number
+
+    // public static final Transform2D = new Transform2D(new Translation2d(0.5,
+    // 0.0),
+    // new Rotation2d(-180));
     public static final Pose2d HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
     public static final double SHOOT_RPMS = 5000;
@@ -65,33 +101,33 @@ public final class Constants {
     // and 565 for a Vortex
 
     // Azimuth Motor Configuration
-    public static final int AZIMUTH_CAN_BUS_ID = 10;
+    public static final int AZIMUTH_CAN_BUS_ID = 17;
     public static final double AZIMUTH_KP = 0.00325;
     public static final double AZIMUTH_KD = 1.0;
     public static final double AZIMUTH_KI = 0.0;
-    public static final double AZIMUTH_KS = 0.01; // static friction feed forward
+    public static final double AZIMUTH_KS = 0.001; // static friction feed forward
     public static final double AZIMUTH_KV = 0.0; // velocity feed forward, not used if mode is position control
     public static final float AZIMUTH_GEAR_RATIO = 200 / 21; // 200 tooth turrent gear with 21 tooth drive gear
     public static final int AZIMUTH_ENCODER_COUNTS_PER_REV = Math.round(42 * AZIMUTH_GEAR_RATIO); // Gear ratio times
                                                                                                   // Neo Motor Encoder
                                                                                                   // 42 counts per rev
     // Hood Motor Configuration
-    public static final int HOOD_CAN_BUS_ID = 12;
-    public static final double HOOD_KP = 0.003;
-    public static final double HOOD_KD = 0.01;
+    public static final int HOOD_CAN_BUS_ID = 18;
+    public static final double HOOD_KP = 0.06;
+    public static final double HOOD_KD = 0.0;
     public static final double HOOD_KI = 0.0;
-    public static final double HOOD_KS = 0.01; // static friction feed forward
+    public static final double HOOD_KS = 3.2; // static friction feed forward
     public static final double HOOD_KV = 0.0; // velocity feed forward, not used if mode is position control
     public static final float HOOD_GEAR_RATIO = 1 / 3; // The hood has a rack and pinion gear
     public static final int HOOD_ENCODER_COUNTS_PER_REV = Math.round(42 * HOOD_GEAR_RATIO);
 
     // Shoot motor configuation
-    public static final int SHOOT_CAN_BUS_ID = 11;
-    public static final double SHOOT_KP = 0.0005;
+    public static final int SHOOT_CAN_BUS_ID = 19;
+    public static final double SHOOT_KP = 0.0002;
     public static final double SHOOT_KD = 0.0000;
     public static final double SHOOT_KI = 0.0;
-    public static final double SHOOT_KS = 0.01; // static friction feed forward
-    public static final double SHOOT_KV = 1 / 565; // neo vortex Kv
+    public static final double SHOOT_KS = 0.11; // static friction feed forward
+    public static final double SHOOT_KV = 0.00178; // 1 / 565; // neo vortex Kv
     // shoter V 0.00215
     // d filter 0.05
     public static final float SHOOT_GEAR_RATIO = 1 / 1; // The Shoot motor is direct drive on the shaft
