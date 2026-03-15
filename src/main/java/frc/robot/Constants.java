@@ -99,11 +99,8 @@ public final class Constants {
 
   public static class ShooterConstants {
     public static final int LIMIT_SW_DIO = 0; // limit switch digital IO number
-
-    // public static final Transform2D = new Transform2D(new Translation2d(0.5,
-    // 0.0),
-    // new Rotation2d(-180));
-    public static final Pose2d HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
+    public static final Pose2d BLUE_HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
+    public static final Pose2d RED_HUB_POSE = new Pose2d(11.9, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
     public static final double SHOOT_RPMS = 5000;
 
@@ -124,8 +121,8 @@ public final class Constants {
 
     // Azimuth Motor Configuration
     public static final int AZIMUTH_CAN_BUS_ID = 17;
-    public static final double AZIMUTH_KP = 0.00325;
-    public static final double AZIMUTH_KD = 1.0;
+    public static final double AZIMUTH_KP = 0.005;
+    public static final double AZIMUTH_KD = 0.05;
     public static final double AZIMUTH_KI = 0.0;
     public static final double AZIMUTH_KS = 0.001; // static friction feed forward
     public static final double AZIMUTH_KV = 0.0; // velocity feed forward, not used if mode is position control

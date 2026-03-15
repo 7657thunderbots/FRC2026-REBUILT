@@ -109,8 +109,12 @@ public class ShooterSubsystem extends SubsystemBase {
     configureHoodMotor();
     configureShootMotor();
 
-    // set the current target to be the hub
-    setTargetPose(HUB_POSE);
+    // set the current target to be the hub based on alliance color
+    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+      setTargetPose(BLUE_HUB_POSE);
+    } else {
+      setTargetPose(RED_HUB_POSE);
+    }
     // set the hood to be at zero... it already should be
     setHoodPosition(0);
     // set the shooter velocity to zero
