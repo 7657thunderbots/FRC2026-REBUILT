@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -10,8 +6,6 @@ import static frc.robot.Constants.ShooterConstants.*;
 import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 
 import java.util.function.Supplier;
-
-import javax.lang.model.util.ElementScanner14;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
@@ -53,14 +47,14 @@ public class ShooterSubsystem extends SubsystemBase {
    * Objects for the hood control
    */
   private final SparkClosedLoopController hoodPid;
-  private final SparkMax hoodMotor; // sparkmax driving the big azimuth gear
+  private final SparkMax hoodMotor; // sparkmax driving the hood
   private final RelativeEncoder hoodEncoder; // Integrated NEO encoder.
 
   /**
    * Objects for the shoot motor control
    */
   private final SparkClosedLoopController shootPid;
-  private final SparkMax shootMotor; // sparkmax driving the big azimuth gear
+  private final SparkMax shootMotor; // sparkmax driving the shooter wheels
   private final RelativeEncoder shootEncoder; // Integrated encoder.
 
   private final DigitalInput limitSwitch = new DigitalInput(LIMIT_SW_DIO);
