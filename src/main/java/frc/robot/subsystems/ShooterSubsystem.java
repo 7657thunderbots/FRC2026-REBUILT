@@ -404,7 +404,6 @@ public class ShooterSubsystem extends SubsystemBase {
     } else if (azimuth_cmd < -90.0) {
       azimuth_cmd = -90.0;
     }
-    System.out.println("Turret Command: " + azimuth_cmd);
     final double final_cmd = azimuth_cmd;
     configureSparkMax(() -> azimuthPid.setSetpoint(
         final_cmd,
