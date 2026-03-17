@@ -20,6 +20,8 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  private Command m_autonomousCommand;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -70,12 +72,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    m_robotContainer.setMotorBrake(true);
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-  }
+    // Print the selected autonomous command upon autonomous init
+    System.out.println("Auto selected: " + m_autonomousCommand);
 
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
+    // schedule the autonomous command selected in the autoChooser
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
   }
 
   @Override
@@ -109,4 +115,5 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {
   }
+
 }

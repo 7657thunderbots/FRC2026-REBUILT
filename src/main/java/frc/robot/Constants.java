@@ -34,8 +34,8 @@ import edu.wpi.first.math.Matrix;
 public final class Constants {
   public static final double MAX_SPEED = Units.feetToMeters(14);
   public static final double MAXIMUM_AMBIGUITY = 0.90;
-  public static final Pose2d BLUE_START_POSE = new Pose2d(new Translation2d(14, 4), Rotation2d.fromDegrees(0));
-  public static final Pose2d RED_START_POSE = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(180));
+  public static final Pose2d RED_START_POSE = new Pose2d(new Translation2d(14, 4), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_START_POSE = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(180));
 
   public static class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;

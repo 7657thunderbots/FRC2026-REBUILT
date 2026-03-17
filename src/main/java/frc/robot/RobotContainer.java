@@ -59,10 +59,10 @@ public class RobotContainer {
     configureBindings();
     // m_ShooterSubsystem.setDefaultCommand(null);
     // Create the NamedCommands that will be used in PathPlanner
-    NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    // NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
     // Set the default auto (do nothing)
-    autoChooser.setDefaultOption("Center move back", Commands.none());
+    // autoChooser.setDefaultOption("Center move back", Commands.none());
 
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -99,6 +99,12 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // Pass in the selected auto from the SmartDashboard as our desired autnomous
     // commmand
-    return autoChooser.getSelected();
+    Command autoCommand = autoChooser.getSelected();
+    System.out.println(autoCommand.getName());
+    return autoCommand;
+  }
+
+  public void setMotorBrake(boolean brake) {
+    m_swerveSubsystem.setMotorBrake(brake);
   }
 }
