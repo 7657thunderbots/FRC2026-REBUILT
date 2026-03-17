@@ -2,8 +2,10 @@ package frc.robot;
 
 import java.io.File;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.*;
 import frc.robot.Constants.*;
 
@@ -12,6 +14,8 @@ import swervelib.*;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotContainer {
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(
@@ -41,14 +45,27 @@ public class RobotContainer {
       .allianceRelativeControl(true)
       .scaleRotation(-1.0);
 
+  // Establish a Sendable Chooser that will be able to be sent to the
+  // SmartDashboard, allowing selection of desired auto
+  private final SendableChooser<Command> autoChooser;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the trigger bindings
+    // Have the autoChooser pull in all PathPlanner autos as options
+    autoChooser = AutoBuilder.buildAutoChooser();
     configureBindings();
     // m_ShooterSubsystem.setDefaultCommand(null);
+    // Create the NamedCommands that will be used in PathPlanner
+    NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
+    // Set the default auto (do nothing)
+    autoChooser.setDefaultOption("Center move back", Commands.none());
+
+    // Put the autoChooser on the SmartDashboard
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   private void configureBindings() {
@@ -72,5 +89,16 @@ public class RobotContainer {
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    // Pass in the selected auto from the SmartDashboard as our desired autnomous
+    // commmand
+    return autoChooser.getSelected();
   }
 }
