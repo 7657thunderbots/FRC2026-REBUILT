@@ -27,6 +27,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -62,17 +64,17 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     private final boolean visionDriveTest = true;
 
+    private Pose2d startingPose;
+
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      *
      * @param directory Directory of swerve drive config files.
      */
     public SwerveSubsystem(File directory) {
-        boolean blueAlliance = true;
-        Pose2d startingPose = blueAlliance ? Constants.SIM_START_POSE
-                : new Pose2d(new Translation2d(Meter.of(16),
-                        Meter.of(4)),
-                        Rotation2d.fromDegrees(180));
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+        Pose2d startingPose = alliance == Alliance.Blue ? Constants.BLUE_START_POSE : Constants.RED_START_POSE;
+        this.startingPose = startingPose;
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
@@ -88,38 +90,25 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot
                                                  // via angle.
         swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation);// !SwerveDriveTelemetry.isSimulation); //
-                                                                             // Disables cosine compensation
+        // Disables cosine compensation
         // for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(true,
                 true,
-                0.1); // Correct for skew that gets worse as angular velocity increases. Start with a
-                      // coefficient of 0.1.
-        swerveDrive.setModuleEncoderAutoSynchronize(false,
+                0.01); // Correct for skew that gets worse as angular velocity increases. Start with a
+                       // coefficient of 0.1.
+        swerveDrive.setModuleEncoderAutoSynchronize(true,
                 1); // Enable if you want to resynchronize your absolute encoders and motor encoders
                     // periodically when they are not moving.
         // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used
         // over the internal encoder and push the offsets onto it. Throws warning if not
         // possible
+
         if (visionDriveTest) {
             // Stop the odometry thread if we are using vision that way we can synchronize
             // updates better.
             swerveDrive.stopOdometryThread();
         }
         setupPathPlanner();
-    }
-
-    /**
-     * Construct the swerve drive.
-     *
-     * @param driveCfg      SwerveDriveConfiguration for the swerve.
-     * @param controllerCfg Swerve Controller.
-     */
-    public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg) {
-        swerveDrive = new SwerveDrive(driveCfg,
-                controllerCfg,
-                Constants.MAX_SPEED,
-                new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
-                        Rotation2d.fromDegrees(0)));
     }
 
     /**
@@ -272,6 +261,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 });
     }
 
+    public Command PointWheelsAt(double angleDegree) {
+        return runOnce(() -> Arrays.asList(swerveDrive.getModules())
+                .forEach(it -> it.setAngle(angleDegree)));
+    }
+
     /**
      * Drive with 254's Setpoint generator; port written by PathPlanner.
      *
@@ -336,8 +330,8 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveForward() {
         return run(() -> {
-            swerveDrive.drive(new Translation2d(1, 0), 0, false, false);
-        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
+            swerveDrive.drive(new Translation2d(1, 0), 0, true, false);
+        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, true, false));
     }
 
     /**
@@ -672,5 +666,9 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public SwerveDrive getSwerveDrive() {
         return swerveDrive;
+    }
+
+    public Field2d getField() {
+        return swerveDrive.field;
     }
 }
