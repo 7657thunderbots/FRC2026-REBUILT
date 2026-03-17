@@ -54,9 +54,13 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Configure the trigger bindings
+
+    NamedCommands.registerCommand("Intake", m_IntakeSubsystem.engageIntake());
+    NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
+
+    // Configure the trigger bindings
     configureBindings();
     // m_ShooterSubsystem.setDefaultCommand(null);
     // Create the NamedCommands that will be used in PathPlanner
