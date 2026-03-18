@@ -438,7 +438,7 @@ public class ShooterSubsystem extends SubsystemBase {
    *
    * @param shootRPMs the RPMs for the output flywheel
    */
-  private void setShootVelocity(double shootRPMs) {
+  public void setShootVelocity(double shootRPMs) {
     configureSparkMax(() -> shootPid.setSetpoint(
         shootRPMs,
         ControlType.kVelocity,

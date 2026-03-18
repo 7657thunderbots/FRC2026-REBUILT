@@ -29,6 +29,8 @@ public class RobotContainer {
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(() -> m_swerveSubsystem.getPose(),
       m_swerveSubsystem.getField());
 
+  private final SpindexerSubsystem m_SpindexerSubsystem = new SpindexerSubsystem();
+
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -49,6 +51,8 @@ public class RobotContainer {
   // SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
+  private final ShootCommand shootCommand;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -58,6 +62,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
+    shootCommand = new ShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
 
     // Configure the trigger bindings
     configureBindings();
@@ -84,7 +89,7 @@ public class RobotContainer {
     m_driverController.povRight().whileTrue(m_swerveSubsystem.PointWheelsAt(90));
     m_driverController.povDown().whileTrue(m_swerveSubsystem.PointWheelsAt(180));
     m_driverController.povLeft().whileTrue(m_swerveSubsystem.PointWheelsAt(270));
-
+    m_driverController.rightBumper().whileTrue(shootCommand);
     // Left bumper to bring up intake
     // m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0));
 
