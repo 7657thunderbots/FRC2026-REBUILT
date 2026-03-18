@@ -115,11 +115,11 @@ public class SpindexerSubsystem extends SubsystemBase {
         clearStickyFaults(spinMotor);
     }
 
-    private void setKickerVelocity(double rpm) {
+    public void setKickerVelocity(double rpm) {
         configureSparkMax(() -> kickerPid.setSetpoint(rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0));
     }
 
-    private void setSpindexerVelocity(double rpm) {
+    public void setSpindexerVelocity(double rpm) {
         configureSparkMax(() -> spinPid.setSetpoint(rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0));
     }
 

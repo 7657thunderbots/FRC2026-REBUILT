@@ -16,13 +16,21 @@ public class ShootCommand extends Command {
     }
 
     public void initialize() {
-        m_ShooterSubsystem.set
-
+        m_ShooterSubsystem.setShootVelocity(5000);
+        m_SpindexerSubsystem.setKickerVelocity(800);
+        m_SpindexerSubsystem.setSpindexerVelocity(800);
     }
 
-    public void execute() {
-        m_ShooterSubsystem.engageShooter();
-        m_SpindexerSubsystem.engageKicker();
-        m_SpindexerSubsystem.engageSpindexer();
+    public void end() {
+        m_SpindexerSubsystem.setSpindexerVelocity(0);
+        m_SpindexerSubsystem.setKickerVelocity(0);
+        m_ShooterSubsystem.setShootVelocity(0);
     }
+
+    // public boolean isFinished() {
+    // m_SpindexerSubsystem.engageSpindexer();
+    // m_SpindexerSubsystem.engageKicker();
+    // m_ShooterSubsystem.engageShooter();
+    // return true;
+    // }
 }
