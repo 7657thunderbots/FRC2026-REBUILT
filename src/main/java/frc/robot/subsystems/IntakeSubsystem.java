@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig.Presets;
 
 import static frc.robot.Constants.IntakeConstants.*;
@@ -58,7 +59,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     configureIntakeMotor();
 
-    // configurePivotMotor();
+    configurePivotMotor();
+    pivotMotor.stopMotor();
 
     // set the intake to be at zero... it already should be
     setIntakeVelocity(0);
@@ -108,7 +110,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeCfg.closedLoop.feedForward.kV(INTAKE_KV, ClosedLoopSlot.kSlot0);
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
-    intakeCfg.closedLoop.outputRange(0, 1);
+    intakeCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
     intakeCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
@@ -149,13 +151,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
     pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    pivotCfg.closedLoop.allowedClosedLoopError(0.1, ClosedLoopSlot.kSlot0);
 
     // leave the position in rotations
     pivotCfg.encoder.positionConversionFactor(PIVOT_GEAR_RATIO);
 
     // We will control based on RPMs, so no conversion
     pivotCfg.encoder.velocityConversionFactor(PIVOT_GEAR_RATIO);
-
+    pivotCfg.idleMode(IdleMode.kCoast);
+    pivotCfg.smartCurrentLimit(2);
     // Send the configuration to the sparkmax, reset to safe parameters and store
     // the new configuration so it is persistent
     pivotMotor.configure(pivotCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -209,6 +213,16 @@ public class IntakeSubsystem extends SubsystemBase {
     return run(
         () -> {
           this.setIntakeVelocity(INTAKE_SPEED);
+        }).finallyDo(() -> {
+          this.setIntakeVelocity(0);
+        });
+  }
+
+  public Command reverseIntake() {
+
+    return run(
+        () -> {
+          this.setIntakeVelocity(INTAKE_REV_SPEED);
         }).finallyDo(() -> {
           this.setIntakeVelocity(0);
         });

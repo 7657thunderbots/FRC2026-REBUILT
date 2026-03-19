@@ -78,7 +78,7 @@ public class SpindexerSubsystem extends SubsystemBase {
         // Kicker should only run in the forward direction, so set the output range to 0
         // to 1
         kickerCfg.inverted(true);
-        kickerCfg.closedLoop.outputRange(0, 1);
+        kickerCfg.closedLoop.outputRange(-1, 1);
 
         kickerCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
@@ -91,7 +91,7 @@ public class SpindexerSubsystem extends SubsystemBase {
     }
 
     private void configureSpinMotor() {
-        SparkMaxConfig spinCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
+        SparkMaxConfig spinCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_Vortex);
 
         spinCfg.voltageCompensation(VOLTAGE_COMPENSATION);
         spinCfg.closedLoopRampRate(1);
@@ -115,11 +115,11 @@ public class SpindexerSubsystem extends SubsystemBase {
         clearStickyFaults(spinMotor);
     }
 
-    private void setKickerVelocity(double rpm) {
+    public void setKickerVelocity(double rpm) {
         configureSparkMax(() -> kickerPid.setSetpoint(rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0));
     }
 
-    private void setSpindexerVelocity(double rpm) {
+    public void setSpindexerVelocity(double rpm) {
         configureSparkMax(() -> spinPid.setSetpoint(rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0));
     }
 
@@ -129,6 +129,10 @@ public class SpindexerSubsystem extends SubsystemBase {
 
     public Command engageKicker() {
         return run(() -> setKickerVelocity(KICKER_SPEED)).finallyDo(() -> setKickerVelocity(0));
+    }
+
+    public Command reverseKicker() {
+        return run(() -> setKickerVelocity(-1 * KICKER_SPEED)).finallyDo(() -> setKickerVelocity(0));
     }
 
     public Command engageSpindexer() {

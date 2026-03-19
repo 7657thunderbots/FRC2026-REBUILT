@@ -50,13 +50,20 @@ public class RobotContainer {
   // SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
+  private final ShootCommand shootCommand;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Configure the trigger bindings
+
+    NamedCommands.registerCommand("Intake", m_IntakeSubsystem.engageIntake());
+    NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
+    shootCommand = new ShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
+
+    // Configure the trigger bindings
     configureBindings();
     // m_ShooterSubsystem.setDefaultCommand(null);
     // Create the NamedCommands that will be used in PathPlanner
@@ -75,23 +82,25 @@ public class RobotContainer {
     m_swerveSubsystem.zeroGyroWithAlliance();
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-    m_driverController.a().whileTrue(m_swerveSubsystem.driveForward());
+    // m_driverController.a().whileTrue(m_swerveSubsystem.driveForward());
 
     m_driverController.povUp().whileTrue(m_swerveSubsystem.PointWheelsAt(0));
     m_driverController.povRight().whileTrue(m_swerveSubsystem.PointWheelsAt(90));
     m_driverController.povDown().whileTrue(m_swerveSubsystem.PointWheelsAt(180));
     m_driverController.povLeft().whileTrue(m_swerveSubsystem.PointWheelsAt(270));
-
+    m_driverController.x().whileTrue(shootCommand);
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
-
+    m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());
+    m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
     m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
 
     // Right bumper to lower intake
-    // m_driverController.rightBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
+    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());
+    m_driverController.y().whileTrue(m_IntakeSubsystem.reverseIntake());
   }
 
   /**
