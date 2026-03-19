@@ -82,7 +82,7 @@ public class RobotContainer {
     m_swerveSubsystem.zeroGyroWithAlliance();
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-    m_driverController.a().whileTrue(m_swerveSubsystem.driveForward());
+    // m_driverController.a().whileTrue(m_swerveSubsystem.driveForward());
 
     m_driverController.povUp().whileTrue(m_swerveSubsystem.PointWheelsAt(0));
     m_driverController.povRight().whileTrue(m_swerveSubsystem.PointWheelsAt(90));
@@ -91,7 +91,7 @@ public class RobotContainer {
     m_driverController.x().whileTrue(shootCommand);
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
-
+    m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
     m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
 
     // Right bumper to lower intake

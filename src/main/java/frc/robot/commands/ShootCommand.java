@@ -30,10 +30,10 @@ public class ShootCommand extends Command {
         m_ShooterSubsystem.setShootVelocity(0);
     }
 
-    // public boolean isFinished() {
-    // m_SpindexerSubsystem.engageSpindexer();
-    // m_SpindexerSubsystem.engageKicker();
-    // m_ShooterSubsystem.engageShooter();
-    // return true;
-    // }
+    public boolean isFinished() {
+        m_SpindexerSubsystem.engageSpindexer();
+        m_SpindexerSubsystem.engageKicker();
+        m_ShooterSubsystem.engageShooter();
+        return true;
+    }
 }

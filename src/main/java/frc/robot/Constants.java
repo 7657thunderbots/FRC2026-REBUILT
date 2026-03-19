@@ -88,7 +88,7 @@ public final class Constants {
 
     // Spin Motor Constants
     public static final double SPINDEXER_SPEED = 800.0;
-    public static final int SPIN_CAN_BUS_ID = 21;
+    public static final int SPIN_CAN_BUS_ID = 15;
     public static final double SPIN_KP = 0.1;
     public static final double SPIN_KD = 0.0;
     public static final double SPIN_KI = 0.0;
