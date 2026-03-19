@@ -15,6 +15,12 @@
           "data": {
             "pathName": "Depot path with intake command"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
         }
       ]
     }

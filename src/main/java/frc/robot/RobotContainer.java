@@ -30,8 +30,6 @@ public class RobotContainer {
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(() -> m_swerveSubsystem.getPose(),
       m_swerveSubsystem.getField());
 
-  private final SpindexerSubsystem m_SpindexerSubsystem = new SpindexerSubsystem();
-
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -90,14 +88,14 @@ public class RobotContainer {
     m_driverController.povRight().whileTrue(m_swerveSubsystem.PointWheelsAt(90));
     m_driverController.povDown().whileTrue(m_swerveSubsystem.PointWheelsAt(180));
     m_driverController.povLeft().whileTrue(m_swerveSubsystem.PointWheelsAt(270));
-    m_driverController.rightBumper().whileTrue(shootCommand);
+    m_driverController.x().whileTrue(shootCommand);
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
 
     m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
 
     // Right bumper to lower intake
-    // m_driverController.rightBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
+    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());

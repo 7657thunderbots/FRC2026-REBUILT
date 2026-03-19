@@ -14,6 +14,9 @@ public class ShootCommand extends Command {
         addRequirements(shooter);
         addRequirements(spindexer);
     }
+    // set shoot velocity 5000
+    // set kicker velocity 800
+    // set spindexer velocity 800
 
     public void initialize() {
         m_ShooterSubsystem.setShootVelocity(5000);
