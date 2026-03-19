@@ -282,7 +282,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
     shootCfg.voltageCompensation(VOLTAGE_COMPENSATION);
-
+    shootCfg.inverted(true);
     // Time to go from zero to full throttle at the controller output
     // We want spin up to be quick
     shootCfg.closedLoopRampRate(0.1);

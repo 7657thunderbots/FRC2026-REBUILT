@@ -25,6 +25,7 @@ public class RobotContainer {
   // m_swerveSubsystem.getPose(),
   // m_swerveSubsystem.getSwerveDrive().field,
   // m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
+  private final SpindexerSubsystem m_SpindexerSubsystem = new SpindexerSubsystem();
 
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(() -> m_swerveSubsystem.getPose(),
       m_swerveSubsystem.getField());
@@ -82,7 +83,9 @@ public class RobotContainer {
     m_driverController.povLeft().whileTrue(m_swerveSubsystem.PointWheelsAt(270));
 
     // Left bumper to bring up intake
-    // m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0));
+    m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
+
+    m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
 
     // Right bumper to lower intake
     // m_driverController.rightBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
