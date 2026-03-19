@@ -55,6 +55,7 @@ public final class Constants {
   public static class IntakeConstants {
 
     public static final double INTAKE_SPEED = 800.0;
+    public static final double INTAKE_REV_SPEED = -800.0;
     // Intake Motor Configuration
     public static final int INTAKE_CAN_BUS_ID = 13;
     public static final double INTAKE_KP = 0.0005;
@@ -89,11 +90,11 @@ public final class Constants {
     // Spin Motor Constants
     public static final double SPINDEXER_SPEED = 800.0;
     public static final int SPIN_CAN_BUS_ID = 15;
-    public static final double SPIN_KP = 0.1;
+    public static final double SPIN_KP = 0.0001;
     public static final double SPIN_KD = 0.0;
     public static final double SPIN_KI = 0.0;
-    public static final double SPIN_KS = 3.5;
-    public static final double SPIN_KV = 0.0107;
+    public static final double SPIN_KS = 0.12;
+    public static final double SPIN_KV = 0.002;
     public static final double SPIN_GEAR_RATIO = 1.0 / 1.0;
   }
 
@@ -159,8 +160,8 @@ public final class Constants {
     public static final double SHOOT_KP = 0.0002;
     public static final double SHOOT_KD = 0.0000;
     public static final double SHOOT_KI = 0.0;
-    public static final double SHOOT_KS = 0.11; // static friction feed forward
-    public static final double SHOOT_KV = 0.00178; // tuned by hand but the vortex has a Kv of 565; // neo vortex Kv
+    public static final double SHOOT_KS = 0.005; // static friction feed forward
+    public static final double SHOOT_KV = 0.00183; // tuned by hand but the vortex has a Kv of 565; // neo vortex Kv
     public static final double SHOOT_GEAR_RATIO = 1.0 / 1.0; // The Shoot motor is direct drive on the shaft
 
   }

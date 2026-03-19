@@ -235,7 +235,7 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodCfg.closedLoop.pid(HOOD_KP, HOOD_KI,
         HOOD_KD, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.feedForward.kS(HOOD_KS, ClosedLoopSlot.kSlot0);
-    hoodCfg.closedLoop.feedForward.kS(HOOD_KV, ClosedLoopSlot.kSlot0);
+    hoodCfg.closedLoop.feedForward.kV(HOOD_KV, ClosedLoopSlot.kSlot0);
     hoodCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
 
     // The controller has a max range of -1 to 1,
@@ -292,7 +292,7 @@ public class ShooterSubsystem extends SubsystemBase {
         SHOOT_KD, ClosedLoopSlot.kSlot0);
     shootCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     shootCfg.closedLoop.feedForward.kS(SHOOT_KS, ClosedLoopSlot.kSlot0);
-    shootCfg.closedLoop.feedForward.kS(SHOOT_KV, ClosedLoopSlot.kSlot0);
+    shootCfg.closedLoop.feedForward.kV(SHOOT_KV, ClosedLoopSlot.kSlot0);
 
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
