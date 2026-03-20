@@ -243,7 +243,7 @@ public class IntakeSubsystem extends SubsystemBase {
         () -> {
           this.setPivotPosition(position);
         }).finallyDo(() -> {
-          intakeMotor.stopMotor();
+          pivotMotor.stopMotor();
         });
 
   }
