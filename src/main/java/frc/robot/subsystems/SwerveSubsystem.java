@@ -77,7 +77,7 @@ public class SwerveSubsystem extends SubsystemBase {
         this.startingPose = startingPose;
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.NONE;
         try {
             swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, startingPose);
             // Alternative method if you don't want to supply the conversion factor via JSON
