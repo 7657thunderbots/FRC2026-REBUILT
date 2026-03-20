@@ -62,11 +62,11 @@ public class IntakeSubsystem extends SubsystemBase {
     configureIntakeMotor();
 
     configurePivotMotor();
-    pivotMotor.stopMotor();
 
     // set the intake to be at zero... it already should be
     setIntakeVelocity(0);
-    // setPivotPosition(0);
+    // Set Pivot Motor to off until it gets a command
+    pivotMotor.stopMotor();
   }
 
   /**
@@ -242,6 +242,8 @@ public class IntakeSubsystem extends SubsystemBase {
     return run(
         () -> {
           this.setPivotPosition(position);
+        }).finallyDo(() -> {
+          intakeMotor.stopMotor();
         });
 
   }
