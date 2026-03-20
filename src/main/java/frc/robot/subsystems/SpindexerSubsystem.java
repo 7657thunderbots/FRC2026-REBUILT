@@ -139,6 +139,16 @@ public class SpindexerSubsystem extends SubsystemBase {
         return run(() -> setSpindexerVelocity(SPINDEXER_SPEED)).finallyDo(() -> setSpindexerVelocity(0));
     }
 
+    public Command engageBoth() {
+        return run(() -> {
+            setSpindexerVelocity(SPINDEXER_SPEED);
+            setKickerVelocity(KICKER_SPEED);
+        }).finallyDo(() -> {
+            setSpindexerVelocity(0);
+            setKickerVelocity(0);
+        });
+    }
+
     @Override
     public void periodic() {
     }

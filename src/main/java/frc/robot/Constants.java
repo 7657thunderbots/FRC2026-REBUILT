@@ -54,8 +54,8 @@ public final class Constants {
 
   public static class IntakeConstants {
 
-    public static final double INTAKE_SPEED = 800.0;
-    public static final double INTAKE_REV_SPEED = -800.0;
+    public static final double INTAKE_SPEED = 600.0;
+    public static final double INTAKE_REV_SPEED = -600.0;
     // Intake Motor Configuration
     public static final int INTAKE_CAN_BUS_ID = 13;
     public static final double INTAKE_KP = 0.0005;
@@ -119,8 +119,7 @@ public final class Constants {
     public static final Pose2d BLUE_HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
     public static final Pose2d RED_HUB_POSE = new Pose2d(11.9, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
-    public static final double SHOOT_RPMS = 5000;
-
+    public static final double SHOOT_RPMS = 4000;
     // About PID Coefficients
     // They have units. The output of the sparkmax controller PID is in duty cycle.
     // duty cycle can be thought of as the percentage of the battery voltage to

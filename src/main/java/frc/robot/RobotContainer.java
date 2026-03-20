@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotContainer {
@@ -31,6 +32,7 @@ public class RobotContainer {
       m_swerveSubsystem.getField());
 
   private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
+  private final PowerDistribution m_PowerDistribution = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController = new CommandXboxController(
@@ -69,6 +71,8 @@ public class RobotContainer {
     // Create the NamedCommands that will be used in PathPlanner
     // NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
+    SmartDashboard.putData("PDH", m_PowerDistribution);
+
     // Set the default auto (do nothing)
     // autoChooser.setDefaultOption("Center move back", Commands.none());
 
@@ -94,7 +98,7 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());
     m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
     m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
-
+    m_driverController.a().and(m_driverController.b()).whileTrue(m_SpindexerSubsystem.engageBoth());
     // Right bumper to lower intake
     m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
 

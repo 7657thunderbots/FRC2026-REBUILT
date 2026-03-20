@@ -23,6 +23,8 @@ import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.MathSharedStore;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -159,7 +161,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // We will control based on RPMs, so no conversion
     pivotCfg.encoder.velocityConversionFactor(PIVOT_GEAR_RATIO);
     pivotCfg.idleMode(IdleMode.kCoast);
-    pivotCfg.smartCurrentLimit(2);
+
     // Send the configuration to the sparkmax, reset to safe parameters and store
     // the new configuration so it is persistent
     pivotMotor.configure(pivotCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -263,5 +265,14 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    builder.addDoubleProperty("Intake Velocity", intakeEncoder::getVelocity, null);
+    builder.addDoubleProperty("Intake Position", intakeEncoder::getPosition, null);
+    builder.addDoubleProperty("Pivot Velocity", pivotEncoder::getVelocity, null);
+    builder.addDoubleProperty("Pivot Position", pivotEncoder::getPosition, null);
   }
 }

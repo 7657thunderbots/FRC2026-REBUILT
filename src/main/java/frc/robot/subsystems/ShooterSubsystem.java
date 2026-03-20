@@ -29,6 +29,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -351,6 +352,10 @@ public class ShooterSubsystem extends SubsystemBase {
     currentMode = mode;
   }
 
+  public ShooterMode getShooterMode() {
+    return currentMode;
+  }
+
   /**
    * Engage the shooter motor
    * return motor speed to zero when command ends
@@ -590,6 +595,17 @@ public class ShooterSubsystem extends SubsystemBase {
      * Manual Position Mode
      */
     MANUAL
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    // keep the base class sendables and then add to them
+    super.initSendable(builder);
+
+    builder.addStringProperty(
+        ".mode",
+        () -> getShooterMode().name(), null);
+
   }
 
 }
