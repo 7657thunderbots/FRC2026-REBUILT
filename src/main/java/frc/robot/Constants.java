@@ -120,6 +120,7 @@ public final class Constants {
     public static final Pose2d RED_HUB_POSE = new Pose2d(11.9, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
     public static final double SHOOT_RPMS = 4000;
+    public static final double SLOW_SHOOT_RPMS = 2500;
     // About PID Coefficients
     // They have units. The output of the sparkmax controller PID is in duty cycle.
     // duty cycle can be thought of as the percentage of the battery voltage to
