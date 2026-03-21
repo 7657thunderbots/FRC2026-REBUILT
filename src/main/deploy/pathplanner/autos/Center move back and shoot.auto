@@ -9,6 +9,12 @@
           "data": {
             "pathName": "center move back path"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
         }
       ]
     }
