@@ -64,7 +64,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
-    shootCommand = new ShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
+    shootCommand = new ShootCommand(m_SpindexerSubsystem);
     slowShootCommand = new SlowShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
     // Configure the trigger bindings
     configureBindings();
@@ -100,7 +100,7 @@ public class RobotContainer {
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());
     m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
     m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
-    m_driverController.a().and(m_driverController.b()).whileTrue(m_SpindexerSubsystem.engageBoth());
+    m_driverController.a().and(m_driverController.rightTrigger()).whileTrue(m_SpindexerSubsystem.engageBoth());
     // Right bumper to lower intake
     m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
 

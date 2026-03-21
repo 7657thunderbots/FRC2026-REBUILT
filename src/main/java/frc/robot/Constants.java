@@ -88,7 +88,7 @@ public final class Constants {
     public static final double KICKER_GEAR_RATIO = 1.0 / 3.0;
 
     // Spin Motor Constants
-    public static final double SPINDEXER_SPEED = 800.0;
+    public static final double SPINDEXER_SPEED = 700.0;
     public static final int SPIN_CAN_BUS_ID = 15;
     public static final double SPIN_KP = 0.0001;
     public static final double SPIN_KD = 0.0;
@@ -120,7 +120,7 @@ public final class Constants {
     public static final Pose2d RED_HUB_POSE = new Pose2d(11.9, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
     public static final double SHOOT_RPMS = 4000;
-    public static final double SLOW_SHOOT_RPMS = 2500;
+    public static final double SLOW_SHOOT_RPMS = 3800;
     // About PID Coefficients
     // They have units. The output of the sparkmax controller PID is in duty cycle.
     // duty cycle can be thought of as the percentage of the battery voltage to
