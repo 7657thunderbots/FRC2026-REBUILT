@@ -373,6 +373,26 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  public Command engageSlowShoot() {
+
+    return run(
+        () -> {
+          this.setShootVelocity(SLOW_SHOOT_RPMS);
+        }).finallyDo(() -> {
+          this.setShootVelocity(0);
+        });
+  }
+
+  public Command engagePass() {
+
+    return run(
+        () -> {
+          this.setShootVelocity(PASS_RPMS);
+        }).finallyDo(() -> {
+          this.setShootVelocity(0);
+        });
+  }
+
   public Command calibrateShooterAzimuth() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.

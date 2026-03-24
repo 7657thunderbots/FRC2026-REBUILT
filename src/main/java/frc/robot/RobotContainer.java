@@ -53,7 +53,6 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   private final ShootCommand shootCommand;
-  private final SlowShootCommand slowShootCommand;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -65,7 +64,6 @@ public class RobotContainer {
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
     shootCommand = new ShootCommand(m_SpindexerSubsystem);
-    slowShootCommand = new SlowShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
     // Configure the trigger bindings
     configureBindings();
     // m_ShooterSubsystem.setDefaultCommand(null);
@@ -93,8 +91,10 @@ public class RobotContainer {
     // m_driverController.povRight().whileTrue(m_swerveSubsystem.PointWheelsAt(90));
     // m_driverController.povDown().whileTrue(m_swerveSubsystem.PointWheelsAt(180));
     // m_driverController.povLeft().whileTrue(m_swerveSubsystem.PointWheelsAt(270));
-    m_driverController.povUp().whileTrue(slowShootCommand);
     m_driverController.x().whileTrue(shootCommand);
+    m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageShooter());
+    m_driverController.povDown().whileTrue(m_ShooterSubsystem.engageSlowShoot());
+    m_driverController.povRight().whileTrue(m_ShooterSubsystem.engagePass());
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());

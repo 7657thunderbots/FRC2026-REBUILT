@@ -121,6 +121,7 @@ public final class Constants {
     // shooter motor velocity once engaged
     public static final double SHOOT_RPMS = 4000;
     public static final double SLOW_SHOOT_RPMS = 3800;
+    public static final double PASS_RPMS = 5000;
     // About PID Coefficients
     // They have units. The output of the sparkmax controller PID is in duty cycle.
     // duty cycle can be thought of as the percentage of the battery voltage to
