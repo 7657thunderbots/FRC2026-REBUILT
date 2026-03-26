@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Side Move Back Path"
+            "pathName": "Left bumb preload Path"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Tested autos that work",
+  "folder": "Preload only",
   "choreoAuto": false
 }

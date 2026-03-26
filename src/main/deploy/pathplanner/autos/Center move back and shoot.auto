@@ -20,6 +20,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Tested autos that work",
   "choreoAuto": false
 }
