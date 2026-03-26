@@ -95,7 +95,7 @@ public final class Constants {
     public static final double SPIN_KI = 0.0;
     public static final double SPIN_KS = 0.12;
     public static final double SPIN_KV = 0.002;
-    public static final double SPIN_GEAR_RATIO = 1.0 / 1.0;
+    public static final double SPIN_GEAR_RATIO = 1.0 / 3.0;
   }
 
   public static class ShooterConstants {
