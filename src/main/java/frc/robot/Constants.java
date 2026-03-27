@@ -78,7 +78,7 @@ public final class Constants {
 
   public static class SpindexerConstants {
     // Kicker motor (replaces intake)
-    public static final double KICKER_SPEED = 1000.0;
+    public static final double KICKER_SPEED = 800.0;
     public static final int KICKER_CAN_BUS_ID = 20;
     public static final double KICKER_KP = 0.0001;
     public static final double KICKER_KD = 0.0;
