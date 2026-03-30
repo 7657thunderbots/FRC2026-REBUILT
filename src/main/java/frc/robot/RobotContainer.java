@@ -97,6 +97,9 @@ public class RobotContainer {
     // Right bumper to lower intake
     m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
 
+    // Temp assign right bumper to distance shoot
+    m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageDistanceShoot());
+
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());
     m_driverController.y().whileTrue(m_IntakeSubsystem.reverseIntake());

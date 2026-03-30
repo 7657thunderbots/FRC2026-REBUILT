@@ -39,8 +39,20 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.CameraConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
+
+  // Distance-based shooting setup kept here on purpose so the full feature is easy
+  // to read in one file.
+  private static final int RED_HUB_TAG_A = 9;
+  private static final int RED_HUB_TAG_B = 10;
+  private static final int BLUE_HUB_TAG_A = 25;
+  private static final int BLUE_HUB_TAG_B = 26;
+  private static final double DISTANCE_SHOT_MIN_DISTANCE_METERS = 1.5;
+  private static final double DISTANCE_SHOT_MAX_DISTANCE_METERS = 5.5;
+  private static final double DISTANCE_SHOT_MIN_RPMS = SLOW_SHOOT_RPMS;
+  private static final double DISTANCE_SHOT_MAX_RPMS = PASS_RPMS;
 
   /**
    * Objects for the azimuth control
@@ -125,7 +137,7 @@ public class ShooterSubsystem extends SubsystemBase {
     configureShootMotor();
 
     // set the current target to be the hub based on alliance color
-    if (DriverStation.getAlliance().equals(Alliance.Blue)) {
+    if (getCurrentAlliance() == Alliance.Blue) {
       setTargetPose(BLUE_HUB_POSE);
     } else {
       setTargetPose(RED_HUB_POSE);
@@ -334,6 +346,10 @@ public class ShooterSubsystem extends SubsystemBase {
     targetPose = target;
   }
 
+  private Alliance getCurrentAlliance() {
+    return DriverStation.getAlliance().orElse(Alliance.Blue);
+  }
+
   /**
    * Sets the shooter mode to either AUTO or MANUAL
    *
@@ -354,6 +370,51 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterMode getShooterMode() {
     return currentMode;
+  }
+
+  private Pose2d getHubTargetPose() {
+    Alliance alliance = getCurrentAlliance();
+    int firstTagId = alliance == Alliance.Red ? RED_HUB_TAG_A : BLUE_HUB_TAG_A;
+    int secondTagId = alliance == Alliance.Red ? RED_HUB_TAG_B : BLUE_HUB_TAG_B;
+    Pose2d fallbackPose = alliance == Alliance.Red ? RED_HUB_POSE : BLUE_HUB_POSE;
+
+    var firstTagPose = CameraConstants.TAG_LAYOUT.getTagPose(firstTagId);
+    var secondTagPose = CameraConstants.TAG_LAYOUT.getTagPose(secondTagId);
+
+    if (firstTagPose.isPresent() && secondTagPose.isPresent()) {
+      Translation2d hubCenter = firstTagPose.get().toPose2d().getTranslation()
+          .plus(secondTagPose.get().toPose2d().getTranslation())
+          .div(2.0);
+      return new Pose2d(hubCenter, fallbackPose.getRotation());
+    }
+
+    if (firstTagPose.isPresent()) {
+      return firstTagPose.get().toPose2d();
+    }
+
+    if (secondTagPose.isPresent()) {
+      return secondTagPose.get().toPose2d();
+    }
+
+    return fallbackPose;
+  }
+
+  public double getHubTagDistanceMeters() {
+    return calculateTargetDistance(getHubTargetPose());
+  }
+
+  public double getDistanceBasedShootVelocity() {
+    double distanceRangeMeters = DISTANCE_SHOT_MAX_DISTANCE_METERS - DISTANCE_SHOT_MIN_DISTANCE_METERS;
+    if (distanceRangeMeters <= 0.0) {
+      return DISTANCE_SHOT_MIN_RPMS;
+    }
+
+    double distanceMeters = getHubTagDistanceMeters();
+    double clampedDistance = Math.max(DISTANCE_SHOT_MIN_DISTANCE_METERS,
+        Math.min(DISTANCE_SHOT_MAX_DISTANCE_METERS, distanceMeters));
+    double distanceFraction = (clampedDistance - DISTANCE_SHOT_MIN_DISTANCE_METERS) / distanceRangeMeters;
+
+    return DISTANCE_SHOT_MIN_RPMS + ((DISTANCE_SHOT_MAX_RPMS - DISTANCE_SHOT_MIN_RPMS) * distanceFraction);
   }
 
   /**
@@ -388,6 +449,16 @@ public class ShooterSubsystem extends SubsystemBase {
     return run(
         () -> {
           this.setShootVelocity(PASS_RPMS);
+        }).finallyDo(() -> {
+          this.setShootVelocity(0);
+        });
+  }
+
+  public Command engageDistanceShoot() {
+
+    return run(
+        () -> {
+          this.setShootVelocity(getDistanceBasedShootVelocity());
         }).finallyDo(() -> {
           this.setShootVelocity(0);
         });
@@ -578,9 +649,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // find the distance to the current target
   private double calculateTargetDistance(Pose2d target) {
+    Pose2d currentShooterPose = robotToShooter();
     // Calculate the difference in X and Y position from the shooter to the target
-    double dx = target.getX() - shooterPose.getX();
-    double dy = target.getY() - shooterPose.getY();
+    double dx = target.getX() - currentShooterPose.getX();
+    double dy = target.getY() - currentShooterPose.getY();
 
     // Use Pythagorean's Theorem to find the length of the hypotenuse of the
     // triangle
