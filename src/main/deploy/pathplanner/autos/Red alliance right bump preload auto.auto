@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "Red alliance right bump preload"
           }
         },
         {
@@ -20,6 +20,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Blue alliance Preload only",
+  "folder": "Red alliance Preload only",
   "choreoAuto": false
 }
