@@ -8,7 +8,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import frc.robot.Constants.*;
-
+import frc.robot.Constants.ShooterConstants.ShootDistance;
 import swervelib.*;
 
 import edu.wpi.first.wpilibj2.command.*;
@@ -62,6 +62,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake", m_IntakeSubsystem.engageIntake());
     NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
     NamedCommands.registerCommand("shoot", shootCommand);
+    NamedCommands.registerCommand("reverse pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(45));
+    // 45 degrees is arbritrary untill we measure the actual degree of rotation
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -82,13 +84,16 @@ public class RobotContainer {
 
   private void configureBindings() {
     Command driveFieldOrientedAnglularVelocity = m_swerveSubsystem.driveFieldOriented(driveAngularVelocity);
+    m_driverController.povDown().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.SLOW_SHOOT));
+    m_driverController.povUp().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.SHOOT));
+    m_driverController.povRight().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.PASS));
 
     m_swerveSubsystem.zeroGyroWithAlliance();
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     m_driverController.x().whileTrue(shootCommand);
-    m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageShooter());
-    m_driverController.povDown().whileTrue(m_ShooterSubsystem.engageSlowShoot());
-    m_driverController.povRight().whileTrue(m_ShooterSubsystem.engagePass());
+    // m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageShooter());
+    // m_driverController.povDown().whileTrue(m_ShooterSubsystem.engageSlowShoot());
+    // m_driverController.povRight().whileTrue(m_ShooterSubsystem.engagePass());
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());

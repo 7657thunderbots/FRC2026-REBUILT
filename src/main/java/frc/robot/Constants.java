@@ -7,17 +7,12 @@ package frc.robot;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -112,6 +107,17 @@ public final class Constants {
     // shooter pose.
     // So the transform should be -X 5.75 inches and +Y 5.75 inches with a rotation
     // of 180 degrees.
+
+    public enum ShootDistance {
+      SLOW_SHOOT,
+      SHOOT,
+      PASS
+    };
+
+    public static final double SLOW_SHOOT_RPM = 3800;
+    public static final double SHOOT_RPM = 4000;
+    public static final double PASS_RPM = 5000;
+
     public static final Transform2d ROBOT_TO_SHOOTER = new Transform2d(
         new Translation2d(Units.inchesToMeters(-5.75), Units.inchesToMeters(5.75)),
         Rotation2d.fromDegrees(180.0));
@@ -119,9 +125,16 @@ public final class Constants {
     public static final Pose2d BLUE_HUB_POSE = new Pose2d(4.65, 4, Rotation2d.kZero);
     public static final Pose2d RED_HUB_POSE = new Pose2d(11.9, 4, Rotation2d.kZero);
     // shooter motor velocity once engaged
-    public static final double SHOOT_RPMS = 4000;
-    public static final double SLOW_SHOOT_RPMS = 3800;
-    public static final double PASS_RPMS = 5000;
+
+    public class PrecalculatedValues {
+    }
+
+    // public static final int[] SHOOTER_SPEEDS = { 0, 1500, 2000, 2500 }; // index
+    // is distance/some unit
+    public InterpolatingDoubleTreeMap SHOOTER_SPEEDS = new InterpolatingDoubleTreeMap();
+
+    // Access: PrecalculatedValues.SHOOTER_SPEEDS[index]
+
     // About PID Coefficients
     // They have units. The output of the sparkmax controller PID is in duty cycle.
     // duty cycle can be thought of as the percentage of the battery voltage to

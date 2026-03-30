@@ -22,13 +22,13 @@ public class AutoSlowShootCommand extends Command {
     // set spindexer velocity 800
 
     public void initialize() {
-        m_ShooterSubsystem.setShootVelocity(ShooterConstants.SHOOT_RPMS);
+        m_ShooterSubsystem.setShootVelocity(ShooterConstants.SHOOT_RPM);
         motorStartup.restart();
 
     }
 
     public void execute() {
-        m_ShooterSubsystem.setShootVelocity(ShooterConstants.SHOOT_RPMS);
+        m_ShooterSubsystem.setShootVelocity(ShooterConstants.SHOOT_RPM);
         if (motorStartup.hasElapsed(1)) {
             m_SpindexerSubsystem.setKickerVelocity(SpindexerConstants.KICKER_SPEED);
             m_SpindexerSubsystem.setSpindexerVelocity(SpindexerConstants.SPINDEXER_SPEED);
