@@ -52,18 +52,18 @@ public class RobotContainer {
   // SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
-  private final ShootCommand shootCommand;
+  private final AutoSlowShootCommand shootCommand;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-
+    shootCommand = new AutoSlowShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
     NamedCommands.registerCommand("Intake", m_IntakeSubsystem.engageIntake());
     NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
+    NamedCommands.registerCommand("shoot", shootCommand);
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
-    shootCommand = new ShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
 
     // Configure the trigger bindings
     configureBindings();
@@ -85,26 +85,22 @@ public class RobotContainer {
 
     m_swerveSubsystem.zeroGyroWithAlliance();
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-
-    // m_driverController.a().whileTrue(m_swerveSubsystem.driveForward());
-
-    m_driverController.povUp().whileTrue(m_swerveSubsystem.PointWheelsAt(0));
-    m_driverController.povRight().whileTrue(m_swerveSubsystem.PointWheelsAt(90));
-    m_driverController.povDown().whileTrue(m_swerveSubsystem.PointWheelsAt(180));
-    m_driverController.povLeft().whileTrue(m_swerveSubsystem.PointWheelsAt(270));
     m_driverController.x().whileTrue(shootCommand);
+    m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageShooter());
+    m_driverController.povDown().whileTrue(m_ShooterSubsystem.engageSlowShoot());
+    m_driverController.povRight().whileTrue(m_ShooterSubsystem.engagePass());
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());
     m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
-    m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
-    m_driverController.a().and(m_driverController.b()).whileTrue(m_SpindexerSubsystem.engageBoth());
+    m_driverController.a().and(m_driverController.rightTrigger()).whileTrue(m_SpindexerSubsystem.engageBoth());
     // Right bumper to lower intake
     m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());
     m_driverController.y().whileTrue(m_IntakeSubsystem.reverseIntake());
+    m_driverController.povLeft().whileTrue(m_swerveSubsystem.resetOdometry());
   }
 
   /**

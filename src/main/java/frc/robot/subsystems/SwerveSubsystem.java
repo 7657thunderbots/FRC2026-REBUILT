@@ -489,6 +489,16 @@ public class SwerveSubsystem extends SubsystemBase {
         return swerveDrive.getPose();
     }
 
+    public Command resetOdometry() {
+
+        return run(
+                () -> {
+                    this.resetOdometry();
+                }).finallyDo(() -> {
+                    this.resetOdometry();
+                });
+    }
+
     /**
      * Set chassis speeds with closed-loop velocity control.
      *

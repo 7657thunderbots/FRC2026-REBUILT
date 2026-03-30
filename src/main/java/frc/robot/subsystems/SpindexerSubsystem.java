@@ -91,7 +91,7 @@ public class SpindexerSubsystem extends SubsystemBase {
     }
 
     private void configureSpinMotor() {
-        SparkMaxConfig spinCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_Vortex);
+        SparkMaxConfig spinCfg = new SparkMaxConfig().apply((SparkMaxConfig) Presets.REV_NEO);
 
         spinCfg.voltageCompensation(VOLTAGE_COMPENSATION);
         spinCfg.closedLoopRampRate(1);
