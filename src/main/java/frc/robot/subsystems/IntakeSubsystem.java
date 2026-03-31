@@ -245,7 +245,6 @@ public class IntakeSubsystem extends SubsystemBase {
         }).finallyDo(() -> {
           pivotMotor.stopMotor();
         });
-
   }
 
   /**
