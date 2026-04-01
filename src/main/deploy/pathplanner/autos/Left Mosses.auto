@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": null
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
+            "pathName": "aa_Ltrench_start"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Blue alliance Preload only",
+  "folder": "Nolan's Autos",
   "choreoAuto": false
 }

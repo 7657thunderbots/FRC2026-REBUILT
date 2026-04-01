@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Side Preload path"
+            "pathName": null
           }
         },
         {
@@ -20,6 +20,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Preload only",
+  "folder": "Blue alliance Preload only",
   "choreoAuto": false
 }

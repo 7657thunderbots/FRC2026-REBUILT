@@ -8,7 +8,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import frc.robot.Constants.*;
-
+import frc.robot.Constants.ShooterConstants.ShootDistance;
 import swervelib.*;
 
 import edu.wpi.first.wpilibj2.command.*;
@@ -52,19 +52,22 @@ public class RobotContainer {
   // SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
-  private final AutoSlowShootCommand shootCommand;
+  private final AutoSlowShootCommand autoShootCommand;
+  private final ShootCommand shootCommand;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    shootCommand = new AutoSlowShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
+    autoShootCommand = new AutoSlowShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
     NamedCommands.registerCommand("Intake", m_IntakeSubsystem.engageIntake());
     NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
-    NamedCommands.registerCommand("shoot", shootCommand);
+    NamedCommands.registerCommand("shoot", autoShootCommand);
+    NamedCommands.registerCommand("reverse pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(45));
+    // 45 degrees is arbritrary untill we measure the actual degree of rotation
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
-
+    shootCommand = new ShootCommand(m_SpindexerSubsystem);
     // Configure the trigger bindings
     configureBindings();
     // m_ShooterSubsystem.setDefaultCommand(null);
@@ -80,8 +83,12 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
+  // I forgot how to tell it my command exists
   private void configureBindings() {
     Command driveFieldOrientedAnglularVelocity = m_swerveSubsystem.driveFieldOriented(driveAngularVelocity);
+    // m_driverController.povDown().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.SLOW_SHOOT));
+    // m_driverController.povUp().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.SHOOT));
+    // m_driverController.povRight().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.PASS));
 
     m_swerveSubsystem.zeroGyroWithAlliance();
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);

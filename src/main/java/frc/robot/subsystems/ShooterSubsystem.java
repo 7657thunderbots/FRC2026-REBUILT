@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.ShooterConstants.*;
 import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 
+import frc.robot.Constants.ShooterConstants;
+
 import java.util.function.Supplier;
 
 import com.revrobotics.REVLibError;
@@ -20,7 +22,9 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkMaxConfig.Presets;
-
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -86,6 +90,28 @@ public class ShooterSubsystem extends SubsystemBase {
   private ShooterMode currentMode = ShooterMode.AUTO;
 
   private final Supplier<Pose2d> robot_pose;
+
+  // Made By Xavier
+  public Command RevShooter(ShootDistance shooterDistance) {
+    return run(
+        () -> {
+          switch (shooterDistance) {
+            case SLOW_SHOOT:
+              this.setShootVelocity(SLOW_SHOOT_RPM);
+              break;
+            case SHOOT:
+              this.setShootVelocity(SHOOT_RPM);
+              break;
+            case PASS:
+              this.setShootVelocity(PASS_RPM);
+              break;
+            default:
+              break;
+          }
+        }).finallyDo(() -> {
+          this.setShootVelocity(0);
+        });
+  }
 
   /**
    * Creates a new ShooterSubsystem.
@@ -367,7 +393,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     return run(
         () -> {
-          this.setShootVelocity(SHOOT_RPMS);
+          this.setShootVelocity(SHOOT_RPM);
         }).finallyDo(() -> {
           this.setShootVelocity(0);
         });
@@ -377,7 +403,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     return run(
         () -> {
-          this.setShootVelocity(SLOW_SHOOT_RPMS);
+          this.setShootVelocity(SLOW_SHOOT_RPM);
         }).finallyDo(() -> {
           this.setShootVelocity(0);
         });
@@ -387,7 +413,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     return run(
         () -> {
-          this.setShootVelocity(PASS_RPMS);
+          this.setShootVelocity(PASS_RPM);
         }).finallyDo(() -> {
           this.setShootVelocity(0);
         });
@@ -628,4 +654,27 @@ public class ShooterSubsystem extends SubsystemBase {
 
   }
 
+  public class FiringSolutionSubsystem {
+    // A map to store distance (key) to shooter speed (value) data points
+    private final InterpolatingDoubleTreeMap m_shooterSpeedMap = new InterpolatingDoubleTreeMap(); //
+
+    public FiringSolutionSubsystem() {
+      // Populate the lookup table with known, pre-tested values
+      m_shooterSpeedMap.put(1.0, 1500.0); // Distance 1m, Speed 1500 RPM
+      m_shooterSpeedMap.put(2.0, 2000.0); // Distance 2m, Speed 2000 RPM
+      m_shooterSpeedMap.put(3.0, 2500.0); // Distance 3m, Speed 2500 RPM
+      // Add more points as needed
+    }
+
+    /**
+     * Gets the interpolated shooter speed for a given distance.
+     * 
+     * @param distance The distance to the target in meters.
+     * @return The calculated shooter speed in RPM.
+     */
+    public double getShooterSpeedForDistance(double distance) {
+      // The .get() method automatically interpolates between the nearest points
+      return m_shooterSpeedMap.get(distance); //
+    }
+  }
 }
