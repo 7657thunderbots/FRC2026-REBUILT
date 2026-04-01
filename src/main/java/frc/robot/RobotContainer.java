@@ -1,5 +1,8 @@
 package frc.robot;
 
+import static frc.robot.Constants.IntakeConstants.PIVOT_BOTTOM_SETPOINT;
+import static frc.robot.Constants.IntakeConstants.PIVOT_TOP_SETPOINT;
+
 import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -96,13 +99,15 @@ public class RobotContainer {
     m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageShooter());
     m_driverController.povDown().whileTrue(m_ShooterSubsystem.engageSlowShoot());
     m_driverController.povRight().whileTrue(m_ShooterSubsystem.engagePass());
-    // Left bumper to bring up intake
+
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());
     m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
     m_driverController.a().and(m_driverController.rightTrigger()).whileTrue(m_SpindexerSubsystem.engageBoth());
-    // Right bumper to lower intake
-    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
+
+    // Bumpers to raise and lower intake
+    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(PIVOT_BOTTOM_SETPOINT)); // Lower
+    m_driverController.rightBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(PIVOT_TOP_SETPOINT)); // Raise
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());

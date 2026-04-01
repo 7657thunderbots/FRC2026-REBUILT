@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -42,6 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkClosedLoopController pivotPid;
   private final SparkMax pivotMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
+  private final AbsoluteEncoder pivotAbsoluteEncoder; // Pivot absolute encoder
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
@@ -55,9 +57,9 @@ public class IntakeSubsystem extends SubsystemBase {
     // Get the onboard PID controller.
     pivotPid = pivotMotor.getClosedLoopController();
     pivotEncoder = pivotMotor.getEncoder();
+    pivotAbsoluteEncoder = pivotMotor.getAbsoluteEncoder();
 
     intakeEncoder.setPosition(0);
-    pivotEncoder.setPosition(0);
 
     configureIntakeMotor();
 
@@ -152,7 +154,7 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
-    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     pivotCfg.closedLoop.allowedClosedLoopError(0.1, ClosedLoopSlot.kSlot0);
 
     // leave the position in rotations

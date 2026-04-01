@@ -69,6 +69,8 @@ public final class Constants {
     public static final double PIVOT_KV = 0.0107; // velocity feed forward, not used if mode is position control
     public static final double PIVOT_GEAR_RATIO = 1.0 / 120; // 120 motor revolutions per 1 revolution of pivot
 
+    public static final double PIVOT_BOTTOM_SETPOINT = 0.0;
+    public static final double PIVOT_TOP_SETPOINT = 0.3;
   }
 
   public static class SpindexerConstants {
