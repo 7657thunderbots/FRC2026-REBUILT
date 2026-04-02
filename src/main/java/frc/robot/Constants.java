@@ -49,6 +49,9 @@ public final class Constants {
 
   public static class IntakeConstants {
 
+    public static final double INTAKE_UP_SETPOINT = 0.34617775678634644;
+    public static final double INTAKE_DOWN_SETPOINT = 0.0;
+
     public static final double INTAKE_SPEED = 600.0;
     public static final double INTAKE_REV_SPEED = -600.0;
     // Intake Motor Configuration
@@ -67,7 +70,7 @@ public final class Constants {
     public static final double PIVOT_KI = 0.0;
     public static final double PIVOT_KS = 3.5; // static friction feed forward
     public static final double PIVOT_KV = 0.0107; // velocity feed forward, not used if mode is position control
-    public static final double PIVOT_GEAR_RATIO = 1.0 / 120; // 120 motor revolutions per 1 revolution of pivot
+    public static final double PIVOT_GEAR_RATIO = 1.0 / 128; // 120 motor revolutions per 1 revolution of pivot
 
   }
 
