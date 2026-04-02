@@ -139,6 +139,10 @@ public class SpindexerSubsystem extends SubsystemBase {
         return run(() -> setSpindexerVelocity(SPINDEXER_SPEED)).finallyDo(() -> setSpindexerVelocity(0));
     }
 
+    public Command reverseSpindexer() {
+        return run(() -> setSpindexerVelocity(-1 * SPINDEXER_SPEED)).finallyDo(() -> setSpindexerVelocity(0));
+    }
+
     public Command engageBoth() {
         return run(() -> {
             setSpindexerVelocity(SPINDEXER_SPEED);
