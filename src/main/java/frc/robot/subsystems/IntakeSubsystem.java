@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -42,6 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkClosedLoopController pivotPid;
   private final SparkMax pivotMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
+  private final AbsoluteEncoder pivotAbsoluteEncoder;
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
@@ -55,6 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Get the onboard PID controller.
     pivotPid = pivotMotor.getClosedLoopController();
     pivotEncoder = pivotMotor.getEncoder();
+    pivotAbsoluteEncoder = pivotMotor.getAbsoluteEncoder();
 
     intakeEncoder.setPosition(0);
     pivotEncoder.setPosition(0);
@@ -67,6 +70,8 @@ public class IntakeSubsystem extends SubsystemBase {
     setIntakeVelocity(0);
     // Set Pivot Motor to off until it gets a command
     pivotMotor.stopMotor();
+
+    // initSendable(null);
   }
 
   /**
@@ -147,12 +152,15 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kS(PIVOT_KS, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kV(PIVOT_KV, ClosedLoopSlot.kSlot0);
+
+    pivotCfg.inverted(true);
+
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
     pivotCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
-    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     pivotCfg.closedLoop.allowedClosedLoopError(0.1, ClosedLoopSlot.kSlot0);
 
     // leave the position in rotations
@@ -241,9 +249,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     return run(
         () -> {
-          this.setPivotPosition(position);
-        }).finallyDo(() -> {
-          pivotMotor.stopMotor();
+          double intakePosition = pivotAbsoluteEncoder.getPosition();
+
+          if ((intakePosition > INTAKE_DOWN_SETPOINT)) {
+            this.setPivotPosition(INTAKE_DOWN_SETPOINT);
+          } else {
+            this.setPivotPosition(INTAKE_UP_SETPOINT);
+          }
         });
   }
 
@@ -275,5 +287,6 @@ public class IntakeSubsystem extends SubsystemBase {
     builder.addDoubleProperty("Intake Position", intakeEncoder::getPosition, null);
     builder.addDoubleProperty("Pivot Velocity", pivotEncoder::getVelocity, null);
     builder.addDoubleProperty("Pivot Position", pivotEncoder::getPosition, null);
+    builder.addDoubleProperty("Intake Absolute Encoder", pivotAbsoluteEncoder::getPosition, null);
   }
 }
