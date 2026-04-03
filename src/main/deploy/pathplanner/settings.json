@@ -2,7 +2,9 @@
   "robotWidth": 0.9398,
   "robotLength": 0.9398,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "New Folder"
+  ],
   "autoFolders": [
     "Blue alliance Preload only",
     "Red alliance Preload only",

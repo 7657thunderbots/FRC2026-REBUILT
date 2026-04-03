@@ -57,7 +57,7 @@
       },
       "nextControl": {
         "x": 8.27165668682912,
-        "y": 4.264126804407385
+        "y": 4.2641268044073835
       },
       "isLocked": true,
       "linkedName": null
@@ -124,7 +124,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
