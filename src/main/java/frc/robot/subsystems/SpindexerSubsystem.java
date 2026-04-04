@@ -102,7 +102,7 @@ public class SpindexerSubsystem extends SubsystemBase {
         spinCfg.closedLoop.feedForward.kV(SPIN_KV, ClosedLoopSlot.kSlot0);
         // only allow foward velocity. TODO: do we need a reverse mode in to potentially
         // deal with jams?
-        spinCfg.closedLoop.outputRange(0, 1);
+        spinCfg.closedLoop.outputRange(-1, 1);
 
         spinCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
