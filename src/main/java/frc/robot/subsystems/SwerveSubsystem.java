@@ -33,8 +33,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.OperatorConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -489,7 +492,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         return run(
                 () -> {
-                    this.resetOdometry();
+                    // this.resetOdometry();
+                    swerveDrive.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(180.0)));
                 });
     }
 
