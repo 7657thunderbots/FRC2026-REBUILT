@@ -104,7 +104,7 @@ public class RobotContainer {
     m_driverController.povRight().whileTrue(m_SpindexerSubsystem.reverseSpindexer());
     m_driverController.a().and(m_driverController.rightTrigger()).whileTrue(m_SpindexerSubsystem.engageBoth());
     // Right bumper to lower intake
-    // m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
+    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.7));
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());
