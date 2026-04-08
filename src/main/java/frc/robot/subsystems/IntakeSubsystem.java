@@ -144,7 +144,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Time to go from zero to full throttle at the controller output
     // TODO: This is really not the right way to do this. We should use max motion
-    pivotCfg.closedLoopRampRate(2);
+    pivotCfg.closedLoopRampRate(1);
 
     // PID control constants
     pivotCfg.closedLoop.pid(PIVOT_KP, PIVOT_KI,
@@ -152,6 +152,8 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kS(PIVOT_KS, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kV(PIVOT_KV, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.positionWrappingInputRange(0, 1);
+    pivotCfg.closedLoop.positionWrappingEnabled(true);
 
     pivotCfg.inverted(true);
 
