@@ -139,7 +139,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
     }
 
-    public void setUpPathPlanner() {
+    public void setupPathPlanner() {
         // Load the RobotConfig from the GUI settings. You should probably
         // store this in your Constants file
         RobotConfig config;
