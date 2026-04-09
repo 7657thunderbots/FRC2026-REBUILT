@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.*;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class RobotContainer {
@@ -90,19 +91,20 @@ public class RobotContainer {
     // m_driverController.povUp().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.SHOOT));
     // m_driverController.povRight().whileTrue(m_ShooterSubsystem.RevShooter(ShootDistance.PASS));
 
-    m_swerveSubsystem.zeroGyroWithAlliance();
     m_swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     m_driverController.x().whileTrue(shootCommand);
-    m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageShooter());
-    m_driverController.povDown().whileTrue(m_ShooterSubsystem.engageSlowShoot());
-    m_driverController.povRight().whileTrue(m_ShooterSubsystem.engagePass());
+    m_driverController.rightBumper().whileTrue(m_ShooterSubsystem.engageShooter());
+    m_driverController.povUp().whileTrue(m_ShooterSubsystem.engageSlowShoot());
+    m_driverController.povDown().whileTrue(m_ShooterSubsystem.engagePass());
+
     // Left bumper to bring up intake
     m_driverController.rightTrigger().whileTrue(m_SpindexerSubsystem.engageKicker());
     m_driverController.b().whileTrue(m_SpindexerSubsystem.reverseKicker());
     m_driverController.a().whileTrue(m_SpindexerSubsystem.engageSpindexer());
+    m_driverController.povRight().whileTrue(m_SpindexerSubsystem.reverseSpindexer());
     m_driverController.a().and(m_driverController.rightTrigger()).whileTrue(m_SpindexerSubsystem.engageBoth());
     // Right bumper to lower intake
-    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.setIntakePivotPosition(0.3));
+    m_driverController.leftBumper().whileTrue(m_IntakeSubsystem.togglePivotPosition());
 
     // Left trigger to start intake
     m_driverController.leftTrigger().whileTrue(m_IntakeSubsystem.engageIntake());

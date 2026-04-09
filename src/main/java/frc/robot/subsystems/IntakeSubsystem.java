@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -24,6 +25,8 @@ import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathSharedStore;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -42,6 +45,11 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkClosedLoopController pivotPid;
   private final SparkMax pivotMotor; // sparkmax driving the big azimuth gear
   private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
+  private final AbsoluteEncoder pivotAbsoluteEncoder;
+  private final DoublePublisher pivotPositionPublisher;
+  private final DoublePublisher pivotAbsPositionPublisher;
+  private final DoublePublisher pivotSetPointPublisher;
+  private PivotPosition pivotState;
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
@@ -54,19 +62,29 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotMotor = new SparkMax(PIVOT_CAN_BUS_ID, MotorType.kBrushless);
     // Get the onboard PID controller.
     pivotPid = pivotMotor.getClosedLoopController();
+    pivotAbsoluteEncoder = pivotMotor.getAbsoluteEncoder();
     pivotEncoder = pivotMotor.getEncoder();
 
-    intakeEncoder.setPosition(0);
-    pivotEncoder.setPosition(0);
-
     configureIntakeMotor();
-
     configurePivotMotor();
+
+    intakeEncoder.setPosition(0);
+    pivotEncoder.setPosition(pivotAbsoluteEncoder.getPosition());
 
     // set the intake to be at zero... it already should be
     setIntakeVelocity(0);
     // Set Pivot Motor to off until it gets a command
-    pivotMotor.stopMotor();
+
+    // setPivotPosition(pivotEncoder.getPosition());
+    // initSendable(null);
+
+    pivotPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
+        "intake/pivotposition").publish();
+    pivotAbsPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
+        "intake/pivotabsposition").publish();
+    pivotSetPointPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
+        "intake/pivotsetpoint").publish();
+    pivotSetPointPublisher.set(0);
   }
 
   /**
@@ -136,10 +154,11 @@ public class IntakeSubsystem extends SubsystemBase {
     // Setup the Sparkmax to control the NEO
     // These are the same Parameters from the REV 2.0 GUI
     pivotCfg.voltageCompensation(VOLTAGE_COMPENSATION);
+    pivotCfg.smartCurrentLimit(60);
 
     // Time to go from zero to full throttle at the controller output
     // TODO: This is really not the right way to do this. We should use max motion
-    pivotCfg.closedLoopRampRate(2);
+    pivotCfg.closedLoopRampRate(0);
 
     // PID control constants
     pivotCfg.closedLoop.pid(PIVOT_KP, PIVOT_KI,
@@ -147,20 +166,28 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kS(PIVOT_KS, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kV(PIVOT_KV, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.positionWrappingInputRange(0, 1);
+    pivotCfg.closedLoop.positionWrappingEnabled(true);
+
+    pivotCfg.inverted(false);
+
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
     pivotCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
     pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    pivotCfg.closedLoop.allowedClosedLoopError(0.1, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.allowedClosedLoopError(0.01, ClosedLoopSlot.kSlot0);
 
+    pivotCfg.absoluteEncoder.zeroOffset(0.06138445);
+    pivotCfg.absoluteEncoder.positionConversionFactor(1);
+    pivotCfg.absoluteEncoder.velocityConversionFactor(1);
+    pivotCfg.absoluteEncoder.inverted(true);
     // leave the position in rotations
     pivotCfg.encoder.positionConversionFactor(PIVOT_GEAR_RATIO);
-
     // We will control based on RPMs, so no conversion
     pivotCfg.encoder.velocityConversionFactor(PIVOT_GEAR_RATIO);
-    pivotCfg.idleMode(IdleMode.kCoast);
+    pivotCfg.idleMode(IdleMode.kBrake);
 
     // Send the configuration to the sparkmax, reset to safe parameters and store
     // the new configuration so it is persistent
@@ -168,6 +195,18 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // clear sparkmax faults
     clearStickyFaults(pivotMotor);
+  }
+
+  private void PivotPositionPeriodic() {
+    double currentPosition = pivotEncoder.getPosition();
+    pivotPositionPublisher.set(currentPosition);
+    pivotAbsPositionPublisher.set(pivotAbsoluteEncoder.getPosition());
+
+    if (currentPosition >= 0.25) {
+      pivotState = PivotPosition.DOWN;
+    } else {
+      pivotState = PivotPosition.UP;
+    }
   }
 
   /**
@@ -189,6 +228,7 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param pivotPosition the RPMs for the output flywheel
    */
   private void setPivotPosition(double position) {
+    // pivotSetPointPublisher.set(position);
     configureSparkMax(() -> pivotPid.setSetpoint(
         position,
         ControlType.kPosition,
@@ -242,8 +282,19 @@ public class IntakeSubsystem extends SubsystemBase {
     return run(
         () -> {
           this.setPivotPosition(position);
-        }).finallyDo(() -> {
-          pivotMotor.stopMotor();
+        });
+  }
+
+  public Command togglePivotPosition() {
+
+    return run(
+        () -> {
+
+          if ((pivotState == PivotPosition.UP)) {
+            this.setPivotPosition(INTAKE_DOWN_SETPOINT);
+          } else {
+            this.setPivotPosition(INTAKE_UP_SETPOINT);
+          }
         });
   }
 
@@ -261,6 +312,20 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // double currentPosition = pivotAbsoluteEncoder.getPosition();
+
+    PivotPositionPeriodic();
+  }
+
+  public enum PivotPosition {
+    /**
+     * UP Position Mode
+     */
+    UP,
+    /**
+     * Down Position
+     */
+    DOWN
   }
 
   @Override
@@ -275,5 +340,6 @@ public class IntakeSubsystem extends SubsystemBase {
     builder.addDoubleProperty("Intake Position", intakeEncoder::getPosition, null);
     builder.addDoubleProperty("Pivot Velocity", pivotEncoder::getVelocity, null);
     builder.addDoubleProperty("Pivot Position", pivotEncoder::getPosition, null);
+    builder.addDoubleProperty("Intake Absolute Encoder", pivotAbsoluteEncoder::getPosition, null);
   }
 }

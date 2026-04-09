@@ -28,12 +28,16 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.OperatorConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -79,7 +83,12 @@ public class SwerveSubsystem extends SubsystemBase {
         this.startingPose = startingPose;
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.NONE;
+        if (RobotBase.isSimulation()) {
+            SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        } else {
+            SwerveDriveTelemetry.verbosity = TelemetryVerbosity.NONE;
+        }
+
         try {
             swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, startingPose);
             // Alternative method if you don't want to supply the conversion factor via JSON
@@ -111,6 +120,7 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.stopOdometryThread();
         }
         setupPathPlanner();
+
     }
 
     /**
@@ -141,7 +151,7 @@ public class SwerveSubsystem extends SubsystemBase {
             AutoBuilder.configure(
                     this::getPose,
                     // Robot pose supplier
-                    this::resetOdometry,
+                    swerveDrive::resetOdometry,
                     // Method to reset odometry (will be called if your auto has a starting pose)
                     this::getRobotVelocity,
                     // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -469,19 +479,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Resets odometry to the given pose. Gyro angle and module positions do not
-     * need to be reset when calling this
-     * method. However, if either gyro angle or module position is reset, this must
-     * be called in order for odometry to
-     * keep working.
-     *
-     * @param initialHolonomicPose The pose to set the odometry to
-     */
-    public void resetOdometry(Pose2d initialHolonomicPose) {
-        swerveDrive.resetOdometry(initialHolonomicPose);
-    }
-
-    /**
      * Gets the current pose (position and rotation) of the robot, as reported by
      * odometry.
      *
@@ -495,9 +492,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         return run(
                 () -> {
-                    this.resetOdometry();
-                }).finallyDo(() -> {
-                    this.resetOdometry();
+                    // this.resetOdometry();
+                    swerveDrive.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(180.0)));
                 });
     }
 
@@ -528,33 +524,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Checks if the alliance is red, defaults to false if alliance isn't available.
-     *
-     * @return true if the red alliance, false if blue. Defaults to false if none is
-     *         available.
-     */
-    private boolean isRedAlliance() {
-        var alliance = DriverStation.getAlliance();
-        return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-    }
-
-    /**
-     * This will zero (calibrate) the robot to assume the current position is facing
-     * forward
-     * <p>
-     * If red alliance rotate the robot 180 after the drviebase zero command
-     */
-    public void zeroGyroWithAlliance() {
-        if (isRedAlliance()) {
-            zeroGyro();
-            // Set the pose 180 degrees
-            resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
-        } else {
-            zeroGyro();
-        }
-    }
-
-    /**
      * Sets the drive motors to brake/coast mode.
      *
      * @param brake True to set motors to brake mode, false for coast.
@@ -567,7 +536,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * Gets the current yaw angle of the robot, as reported by the swerve pose
      * estimator in the underlying drivebase.
      * Note, this is not the raw gyro reading, this may be corrected from calls to
-     * resetOdometry().
+     * ().
      *
      * @return The yaw angle
      */
