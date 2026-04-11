@@ -122,33 +122,49 @@ public class ShooterSubsystem extends SubsystemBase {
    **/
   public ShooterSubsystem(Supplier<Pose2d> pose_supplier, Field2d fieldObj) {
 
-    azimuthMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushless);
-    // Get the onboard PID controller.
-    azimuthPid = azimuthMotor.getClosedLoopController();
-    azimuthEncoder = azimuthMotor.getEncoder();
+    field = fieldObj;
+    robot_pose = pose_supplier;
 
-    hoodMotor = new SparkMax(HOOD_CAN_BUS_ID, MotorType.kBrushless);
-    // Get the onboard PID controller.
-    hoodPid = hoodMotor.getClosedLoopController();
-    hoodEncoder = hoodMotor.getEncoder();
+    if (AZIMUTH_MOTOR_ENABLED) {
+      azimuthMotor = new SparkMax(AZIMUTH_CAN_BUS_ID, MotorType.kBrushless);
+      // Get the onboard PID controller.
+      azimuthPid = azimuthMotor.getClosedLoopController();
+      azimuthEncoder = azimuthMotor.getEncoder();
+      azimuthEncoder.setPosition(0);
+      // configure the motor
+      configureAzimuthMotor();
+      setTurretPosition(0);
+    } else {
+      azimuthMotor = null;
+      azimuthPid = null;
+      azimuthEncoder = null;
+    }
+
+    if (HOOD_MOTOR_ENABLED) {
+      hoodMotor = new SparkMax(HOOD_CAN_BUS_ID, MotorType.kBrushless);
+      // Get the onboard PID controller.
+      hoodPid = hoodMotor.getClosedLoopController();
+      hoodEncoder = hoodMotor.getEncoder();
+      hoodEncoder.setPosition(0);
+      configureHoodMotor();
+      // set the hood to be at zero... it already should be
+      setHoodPosition(0);
+    } else {
+      hoodMotor = null;
+      hoodPid = null;
+      hoodEncoder = null;
+    }
 
     shootMotor = new SparkMax(SHOOT_CAN_BUS_ID, MotorType.kBrushless);
     // Get the onboard PID controller.
     shootPid = shootMotor.getClosedLoopController();
     shootEncoder = shootMotor.getEncoder();
-
-    field = fieldObj;
-    robot_pose = pose_supplier;
-    // zero the encoders. if there is a procedure to provide an initial value use
-    // that here instead
-    azimuthEncoder.setPosition(0);
-    hoodEncoder.setPosition(0);
+    // zero the encoder
     shootEncoder.setPosition(0);
-
-    // configure the motors
-    configureAzimuthMotor();
-    configureHoodMotor();
+    // configure the motor
     configureShootMotor();
+    // set the shooter velocity to zero
+    setShootVelocity(0);
 
     // set the current target to be the hub based on alliance color
     if (DriverStation.getAlliance().equals(Alliance.Blue)) {
@@ -156,12 +172,6 @@ public class ShooterSubsystem extends SubsystemBase {
     } else {
       setTargetPose(RED_HUB_POSE);
     }
-    // set the hood to be at zero... it already should be
-    setHoodPosition(0);
-    // set the shooter velocity to zero
-    setShootVelocity(0);
-
-    setTurretPosition(0);
 
     // offset the shooter pose from the robot using the transform defined in
     // constants. This will be used to calculate the bearing to the target and also
@@ -173,8 +183,6 @@ public class ShooterSubsystem extends SubsystemBase {
       field.getObject("turretPose").setPose(shooterPose);
     }
 
-    // set the turret position to zero
-    setTurretPosition(0.0);
     shooterLog.append("Shooter has Initialized!");
 
     turretBearingPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
@@ -348,7 +356,12 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Rotation2d getAzimuthPosition() {
 
-    return Rotation2d.fromDegrees(azimuthEncoder.getPosition());
+    if (AZIMUTH_MOTOR_ENABLED) {
+      return Rotation2d.fromDegrees(azimuthEncoder.getPosition());
+    } else {
+      return Rotation2d.fromDegrees(0);
+    }
+
   }
 
   /**
@@ -456,14 +469,18 @@ public class ShooterSubsystem extends SubsystemBase {
       azimuth_cmd = -90.0;
     }
     final double final_cmd = azimuth_cmd;
-    configureSparkMax(() -> azimuthPid.setSetpoint(
-        final_cmd,
-        ControlType.kPosition,
-        ClosedLoopSlot.kSlot0));
+    if (AZIMUTH_MOTOR_ENABLED) {
+      configureSparkMax(() -> azimuthPid.setSetpoint(
+          final_cmd,
+          ControlType.kPosition,
+          ClosedLoopSlot.kSlot0));
+    }
 
     // if in simulation set the encoder to the setpoint
     if (RobotBase.isSimulation() && (DriverStation.isAutonomous() || DriverStation.isTeleop())) {
-      azimuthEncoder.setPosition(final_cmd);
+      if (AZIMUTH_MOTOR_ENABLED) {
+        azimuthEncoder.setPosition(final_cmd);
+      }
     }
   }
 
@@ -473,11 +490,12 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param hoodPosition the percentage from 0 to 100 of the range of motion
    */
   private void setHoodPosition(double hoodPosition) {
-    configureSparkMax(() -> hoodPid.setSetpoint(
-        -1 * hoodPosition,
-        ControlType.kPosition,
-        ClosedLoopSlot.kSlot0));
-
+    if (HOOD_MOTOR_ENABLED) {
+      configureSparkMax(() -> hoodPid.setSetpoint(
+          -1 * hoodPosition,
+          ControlType.kPosition,
+          ClosedLoopSlot.kSlot0));
+    }
     // if in simulation set the encoder to the setpoint
     if (RobotBase.isSimulation()) {
       hoodEncoder.setPosition(hoodPosition);

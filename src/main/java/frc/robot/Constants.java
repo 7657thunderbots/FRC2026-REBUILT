@@ -154,6 +154,8 @@ public final class Constants {
     // and 565 for a Vortex
 
     // Azimuth Motor Configuration
+    public static final boolean AZIMUTH_MOTOR_ENABLED = false; // Set to true to enable the azimuth motor and use it for
+                                                               // aiming
     public static final int AZIMUTH_CAN_BUS_ID = 17;
     public static final double AZIMUTH_KP = 0.005;
     public static final double AZIMUTH_KD = 0.05;
@@ -163,6 +165,7 @@ public final class Constants {
     public static final double AZIMUTH_GEAR_RATIO = 200.0 / 21.0; // 200 tooth turrent gear with 21 tooth drive gear
 
     // Hood Motor Configuration
+    public static final boolean HOOD_MOTOR_ENABLED = false;
     public static final int HOOD_CAN_BUS_ID = 18;
     public static final double HOOD_KP = 0.06;
     public static final double HOOD_KD = 0.0;
