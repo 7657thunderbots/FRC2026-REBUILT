@@ -61,10 +61,13 @@ public class RobotContainer {
    */
   public RobotContainer() {
     autoShootCommand = new AutoSlowShootCommand(m_ShooterSubsystem, m_SpindexerSubsystem);
-    NamedCommands.registerCommand("Intake", m_IntakeSubsystem.engageIntake());
-    NamedCommands.registerCommand("pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(0));
+    NamedCommands.registerCommand("Start Intake", m_IntakeSubsystem.engageIntake());
+    NamedCommands.registerCommand("Pivot Intake Down",
+        m_IntakeSubsystem.setIntakePivotPosition(Constants.IntakeConstants.INTAKE_DOWN_SETPOINT));
     NamedCommands.registerCommand("shoot", autoShootCommand);
-    NamedCommands.registerCommand("reverse pivot Intake", m_IntakeSubsystem.setIntakePivotPosition(45));
+    NamedCommands.registerCommand("Pivot Intake Up",
+        m_IntakeSubsystem.setIntakePivotPosition(Constants.IntakeConstants.INTAKE_UP_SETPOINT));
+
     // 45 degrees is arbritrary untill we measure the actual degree of rotation
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
