@@ -15,7 +15,9 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig.Presets;
 
@@ -25,6 +27,7 @@ import static frc.robot.Constants.DefaultSparkMaxConfig.*;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathSharedStore;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -44,9 +47,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final SparkClosedLoopController pivotPid;
   private final SparkMax pivotMotor; // sparkmax driving the big azimuth gear
-  private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
+  // private final RelativeEncoder pivotEncoder; // Integrated NEO encoder.
   private final AbsoluteEncoder pivotAbsoluteEncoder;
-  private final DoublePublisher pivotPositionPublisher;
+  private final BooleanPublisher pivotAtSetpointPublisher;
   private final DoublePublisher pivotAbsPositionPublisher;
   private final DoublePublisher pivotSetPointPublisher;
   private PivotPosition pivotState;
@@ -63,13 +66,13 @@ public class IntakeSubsystem extends SubsystemBase {
     // Get the onboard PID controller.
     pivotPid = pivotMotor.getClosedLoopController();
     pivotAbsoluteEncoder = pivotMotor.getAbsoluteEncoder();
-    pivotEncoder = pivotMotor.getEncoder();
+    // pivotEncoder = pivotMotor.getEncoder();
 
     configureIntakeMotor();
     configurePivotMotor();
 
     intakeEncoder.setPosition(0);
-    pivotEncoder.setPosition(pivotAbsoluteEncoder.getPosition());
+    // pivotEncoder.setPosition(pivotAbsoluteEncoder.getPosition());
 
     // set the intake to be at zero... it already should be
     setIntakeVelocity(0);
@@ -78,8 +81,8 @@ public class IntakeSubsystem extends SubsystemBase {
     // setPivotPosition(pivotEncoder.getPosition());
     // initSendable(null);
 
-    pivotPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
-        "intake/pivotposition").publish();
+    pivotAtSetpointPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getBooleanTopic(
+        "intake/pivotAtSetpoint").publish();
     pivotAbsPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
         "intake/pivotabsposition").publish();
     pivotSetPointPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard").getDoubleTopic(
@@ -156,33 +159,43 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotCfg.voltageCompensation(VOLTAGE_COMPENSATION);
     pivotCfg.smartCurrentLimit(60);
 
-    // Time to go from zero to full throttle at the controller output
-    // TODO: This is really not the right way to do this. We should use max motion
     pivotCfg.closedLoopRampRate(0);
+    pivotCfg.inverted(true);
 
     // PID control constants
     pivotCfg.closedLoop.pid(PIVOT_KP, PIVOT_KI,
         PIVOT_KD, ClosedLoopSlot.kSlot0);
-    pivotCfg.closedLoop.dFilter(0.1, ClosedLoopSlot.kSlot0);
+    pivotCfg.closedLoop.dFilter(0.0, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kS(PIVOT_KS, ClosedLoopSlot.kSlot0);
     pivotCfg.closedLoop.feedForward.kV(PIVOT_KV, ClosedLoopSlot.kSlot0);
-    pivotCfg.closedLoop.positionWrappingInputRange(0, 1);
-    pivotCfg.closedLoop.positionWrappingEnabled(true);
+    pivotCfg.closedLoop.feedForward.kCos(0.28);
+    pivotCfg.closedLoop.feedForward.kCosRatio(360);
 
-    pivotCfg.inverted(false);
+    pivotCfg.closedLoop.positionWrappingEnabled(false);
+
+    pivotCfg.closedLoop.maxMotion.cruiseVelocity(40);
+    pivotCfg.closedLoop.maxMotion.maxAcceleration(40);
+    pivotCfg.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+    pivotCfg.closedLoop.maxMotion.allowedProfileError(0.05);
 
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
     pivotCfg.closedLoop.outputRange(-1, 1);
 
     // Configure feedback of the PID controller as the integrated Hall encoder.
-    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    pivotCfg.closedLoop.allowedClosedLoopError(0.01, ClosedLoopSlot.kSlot0);
 
-    pivotCfg.absoluteEncoder.zeroOffset(0.06138445);
+    pivotCfg.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+    pivotCfg.closedLoop.allowedClosedLoopError(0, ClosedLoopSlot.kSlot0);
+
+    // Configure the absolute encoder
+    // The zero offset sets the encoder to be 0 in the down pivot position
+    // Then with zero centering turned on we don't have to worry about wrapping.
+    pivotCfg.absoluteEncoder.zeroOffset(0.6935996);
+    pivotCfg.absoluteEncoder.zeroCentered(true);
     pivotCfg.absoluteEncoder.positionConversionFactor(1);
     pivotCfg.absoluteEncoder.velocityConversionFactor(1);
-    pivotCfg.absoluteEncoder.inverted(true);
+    pivotCfg.absoluteEncoder.inverted(false);
+
     // leave the position in rotations
     pivotCfg.encoder.positionConversionFactor(PIVOT_GEAR_RATIO);
     // We will control based on RPMs, so no conversion
@@ -198,14 +211,14 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private void PivotPositionPeriodic() {
-    double currentPosition = pivotEncoder.getPosition();
-    pivotPositionPublisher.set(currentPosition);
-    pivotAbsPositionPublisher.set(pivotAbsoluteEncoder.getPosition());
+    double currentPosition = pivotAbsoluteEncoder.getPosition();
+    pivotSetPointPublisher.set(pivotMotor.getAppliedOutput());
+    pivotAbsPositionPublisher.set(currentPosition);
 
-    if (currentPosition >= 0.25) {
-      pivotState = PivotPosition.DOWN;
-    } else {
+    if (currentPosition >= 0.1) {
       pivotState = PivotPosition.UP;
+    } else {
+      pivotState = PivotPosition.DOWN;
     }
   }
 
@@ -231,7 +244,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // pivotSetPointPublisher.set(position);
     configureSparkMax(() -> pivotPid.setSetpoint(
         position,
-        ControlType.kPosition,
+        ControlType.kMAXMotionPositionControl,
         ClosedLoopSlot.kSlot0));
 
   }
@@ -338,8 +351,8 @@ public class IntakeSubsystem extends SubsystemBase {
     super.initSendable(builder);
     builder.addDoubleProperty("Intake Velocity", intakeEncoder::getVelocity, null);
     builder.addDoubleProperty("Intake Position", intakeEncoder::getPosition, null);
-    builder.addDoubleProperty("Pivot Velocity", pivotEncoder::getVelocity, null);
-    builder.addDoubleProperty("Pivot Position", pivotEncoder::getPosition, null);
+    builder.addDoubleProperty("Pivot Velocity", pivotAbsoluteEncoder::getVelocity, null);
+    builder.addDoubleProperty("Pivot Position", pivotAbsoluteEncoder::getPosition, null);
     builder.addDoubleProperty("Intake Absolute Encoder", pivotAbsoluteEncoder::getPosition, null);
   }
 }
