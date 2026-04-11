@@ -495,10 +495,11 @@ public class ShooterSubsystem extends SubsystemBase {
           -1 * hoodPosition,
           ControlType.kPosition,
           ClosedLoopSlot.kSlot0));
-    }
-    // if in simulation set the encoder to the setpoint
-    if (RobotBase.isSimulation()) {
-      hoodEncoder.setPosition(hoodPosition);
+
+      // if in simulation set the encoder to the setpoint
+      if (RobotBase.isSimulation()) {
+        hoodEncoder.setPosition(hoodPosition);
+      }
     }
   }
 
