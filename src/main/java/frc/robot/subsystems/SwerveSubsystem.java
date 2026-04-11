@@ -65,6 +65,8 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     private final SwerveDrive swerveDrive;
 
+    private final Alliance alliance;
+
     /**
      * Enable vision odometry updates while driving.
      */
@@ -78,7 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param directory Directory of swerve drive config files.
      */
     public SwerveSubsystem(File directory) {
-        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+        this.alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
         Pose2d startingPose = alliance == Alliance.Blue ? Constants.BLUE_START_POSE : Constants.RED_START_POSE;
         this.startingPose = startingPose;
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
@@ -86,7 +88,7 @@ public class SwerveSubsystem extends SubsystemBase {
         if (RobotBase.isSimulation()) {
             SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         } else {
-            SwerveDriveTelemetry.verbosity = TelemetryVerbosity.NONE;
+            SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         }
 
         try {
@@ -489,11 +491,24 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command resetOdometry() {
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+        double rotation = alliance == Alliance.Blue ? 0 : 180;
 
         return run(
                 () -> {
-                    // this.resetOdometry();
-                    swerveDrive.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(180.0)));
+                    swerveDrive.resetOdometry(new Pose2d(4.0, 4.0, new Rotation2d(Math.toRadians(rotation))));
+
+                });
+    }
+
+    public Command lockSwerve() {
+
+        return run(
+                () -> {
+                    swerveDrive.setMotorIdleMode(true);
+                    swerveDrive.lockPose();
+                }).finallyDo(() -> {
+                    swerveDrive.setMotorIdleMode(false);
                 });
     }
 

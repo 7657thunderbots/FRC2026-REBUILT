@@ -176,7 +176,7 @@ public class IntakeSubsystem extends SubsystemBase {
     pivotCfg.closedLoop.maxMotion.cruiseVelocity(40);
     pivotCfg.closedLoop.maxMotion.maxAcceleration(40);
     pivotCfg.closedLoop.maxMotion.positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
-    pivotCfg.closedLoop.maxMotion.allowedProfileError(0.05);
+    pivotCfg.closedLoop.maxMotion.allowedProfileError(0.02);
 
     // The controller has a max range of -1 to 1, we don't want it to ever run in
     // reverse so set to 0 to 1
@@ -212,7 +212,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private void PivotPositionPeriodic() {
     double currentPosition = pivotAbsoluteEncoder.getPosition();
-    pivotSetPointPublisher.set(pivotMotor.getAppliedOutput());
+    pivotSetPointPublisher.set(pivotMotor.getAppliedOutput() * 12); // dutycycle*voltage
     pivotAbsPositionPublisher.set(currentPosition);
 
     if (currentPosition >= 0.1) {
@@ -338,7 +338,9 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Down Position
      */
-    DOWN
+    DOWN,
+    MOVING_UP,
+    MOVING_DOWN
   }
 
   @Override
