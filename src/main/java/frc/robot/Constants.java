@@ -52,8 +52,8 @@ public final class Constants {
     public static final double INTAKE_UP_SETPOINT = 0.35;
     public static final double INTAKE_DOWN_SETPOINT = -0.01;
 
-    public static final double INTAKE_SPEED = 600.0;
-    public static final double INTAKE_REV_SPEED = -600.0;
+    public static final double INTAKE_SPEED = 800.0;
+    public static final double INTAKE_REV_SPEED = -800.0;
     // Intake Motor Configuration
     public static final int INTAKE_CAN_BUS_ID = 13;
     public static final double INTAKE_KP = 0.0005;
