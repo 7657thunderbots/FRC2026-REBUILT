@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle to depot"
+            "pathName": "Depot start"
           }
         },
         {
@@ -17,7 +17,26 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 8.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Pivot Intake Down"
                 }
               },
               {
@@ -25,24 +44,30 @@
                 "data": {
                   "name": "Pivot Intake Down"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "shoot to depot"
+                }
               }
             ]
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Depot path with intake command"
+                  "name": "intake"
                 }
               },
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Start Intake"
+                  "pathName": "depot pickup to shoot"
                 }
               }
             ]
