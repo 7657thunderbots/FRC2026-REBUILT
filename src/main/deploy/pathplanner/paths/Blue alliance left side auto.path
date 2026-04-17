@@ -116,40 +116,40 @@
         "y": 7.417996422182468
       },
       "prevControl": {
-        "x": 5.6404494520534625,
-        "y": 7.433853132336668
+        "x": 5.633754870231443,
+        "y": 7.478802293908535
       },
       "nextControl": {
-        "x": 4.840385113936895,
-        "y": 7.385192872951625
+        "x": 4.788908450704226,
+        "y": 7.276566901408451
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.479507042253522,
-        "y": 7.434221824686941
+        "x": 3.495475352112677,
+        "y": 7.223291592128801
       },
       "prevControl": {
-        "x": 4.713216946259006,
-        "y": 7.361194342836694
+        "x": 4.729185256118161,
+        "y": 7.150264110278554
       },
       "nextControl": {
-        "x": 2.9820068400273763,
-        "y": 7.463670552358338
+        "x": 2.9979751498865315,
+        "y": 7.252740319800198
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.122200704225353,
-        "y": 6.893327464788732
+        "x": 3.000457746478874,
+        "y": 6.1848658318425755
       },
       "prevControl": {
-        "x": 2.3712058259900934,
-        "y": 6.915608607823298
+        "x": 3.341387708966079,
+        "y": 5.720915666023171
       },
       "nextControl": null,
       "isLocked": false,
@@ -172,11 +172,40 @@
     {
       "waypointRelativePos": 6.276553106212427,
       "rotationDegrees": 152.07663076857608
+    },
+    {
+      "waypointRelativePos": 9,
+      "rotationDegrees": 125.00000000000001
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Pivot Intake Down",
+      "waypointRelativePos": 0.40298507462686567,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "intake",
+      "waypointRelativePos": 1.423880597014926,
+      "endWaypointRelativePos": 4.943283582089551,
+      "command": null
+    },
+    {
+      "name": "shoot",
+      "waypointRelativePos": 8.623880597014928,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "reverse pivot Intake",
+      "waypointRelativePos": 9.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -195,5 +224,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
