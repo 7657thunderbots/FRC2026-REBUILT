@@ -49,7 +49,7 @@ public final class Constants {
 
   public static class IntakeConstants {
 
-    public static final double INTAKE_UP_SETPOINT = 0.35;
+    public static final double INTAKE_UP_SETPOINT = 0.375;
     public static final double INTAKE_DOWN_SETPOINT = -0.01;
 
     public static final double INTAKE_SPEED = 800.0;

@@ -36,9 +36,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "allignment to right depot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "allignment to right depot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake"
+                }
+              }
+            ]
           }
         },
         {
