@@ -7,10 +7,7 @@
   ],
   "autoFolders": [
     "Blue alliance Preload only",
-    "Red alliance Preload only",
     "Nolan's Autos",
-    "Probably to complex for our bot",
-    "Tested autos that work",
     "Untested"
   ],
   "defaultMaxVel": 3.0,
@@ -38,7 +35,7 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.64,\"y\":0.0},\"size\":{\"width\":0.9398,\"length\":0.3048},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Line\",\"type\":\"line\",\"data\":{\"start\":{\"x\":-0.47,\"y\":0.0},\"end\":{\"x\":-2.566,\"y\":0.0},\"strokeWidth\":0.02}}"
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.64,\"y\":0.0254},\"size\":{\"width\":0.6096,\"length\":0.299},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Line\",\"type\":\"line\",\"data\":{\"start\":{\"x\":-0.47,\"y\":0.203},\"end\":{\"x\":-2.566,\"y\":0.203},\"strokeWidth\":0.02}}"
   ]
 }

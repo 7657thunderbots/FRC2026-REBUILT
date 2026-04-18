@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle to depot"
+            "pathName": "Depot start"
           }
         },
         {
@@ -17,13 +17,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 8.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Pivot Intake Down"
+                  "name": "shoot"
                 }
               }
             ]
@@ -36,13 +36,58 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Depot path with intake command"
+                  "pathName": "shoot to depot"
                 }
               },
               {
-                "type": "named",
+                "type": "race",
                 "data": {
-                  "name": "Start Intake"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Pivot Intake Down"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Start Intake"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 4.0
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "depot pickup to shoot"
                 }
               }
             ]
