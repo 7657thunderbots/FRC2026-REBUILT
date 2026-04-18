@@ -117,9 +117,9 @@ public final class Constants {
       PASS
     };
 
-    public static final double SLOW_SHOOT_RPM = 3800;
-    public static final double SHOOT_RPM = 4000;
-    public static final double PASS_RPM = 5000;
+    public static final double SLOW_SHOOT_RPM = 3500;
+    public static final double SHOOT_RPM = 3800;
+    public static final double PASS_RPM = 6500;
 
     public static final Transform2d ROBOT_TO_SHOOTER = new Transform2d(
         new Translation2d(Units.inchesToMeters(-5.75), Units.inchesToMeters(5.75)),
