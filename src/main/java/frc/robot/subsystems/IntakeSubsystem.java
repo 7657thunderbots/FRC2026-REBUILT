@@ -190,7 +190,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Configure the absolute encoder
     // The zero offset sets the encoder to be 0 in the down pivot position
     // Then with zero centering turned on we don't have to worry about wrapping.
-    pivotCfg.absoluteEncoder.zeroOffset(0.6935996);
+    pivotCfg.absoluteEncoder.zeroOffset(0.017);
     pivotCfg.absoluteEncoder.zeroCentered(true);
     pivotCfg.absoluteEncoder.positionConversionFactor(1);
     pivotCfg.absoluteEncoder.velocityConversionFactor(1);
