@@ -12,6 +12,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonCamera.*;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.targeting.*;
 
 import edu.wpi.first.apriltag.AprilTag;
@@ -25,16 +26,19 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CameraConstants;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import edu.wpi.first.math.Matrix;
 
 public class VisionSubsystem extends SubsystemBase {
     public static final AprilTagFieldLayout m_fieldLayout = AprilTagFieldLayout
             .loadField(AprilTagFields.k2026RebuiltAndymark);
+
     public VisionSystemSim m_visionSim;
 
     private final double p_maximumAmbiguity = 0.25;
     private PhotonPoseEstimator p_poseEstimator;
+    private PhotonCameraSim cameraSim;
     private double p_longDistancePoseEstimationCount = 0;
     private Supplier<Pose2d> p_currentPose;
     private Field2d p_field2d;
@@ -43,22 +47,36 @@ public class VisionSubsystem extends SubsystemBase {
     private EstimateConsumer p_estimateConsumer;
 
     private final PhotonCamera p_camera = new PhotonCamera("RearCamera");
-    private final Transform3d p_cameraTransform = new Transform3d(
-            new Translation3d(1, 1, 1),
-            new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.zero()));
+
+    // Grab our back camera transform from the constants file
+    private final Transform3d p_backCameraTransform = Constants.CameraConstants.CAMERA_CONFIGS[0].robotToCamera;
 
     public VisionSubsystem(Supplier<Pose2d> currentPose, Field2d field, EstimateConsumer estimateConsumer) {
         this.p_currentPose = currentPose;
         this.p_field2d = field;
 
-        this.p_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, p_cameraTransform);
+        this.p_poseEstimator = new PhotonPoseEstimator(m_fieldLayout, p_backCameraTransform);
         this.p_estimateConsumer = estimateConsumer;
 
-        // Doesn't work
         if (Robot.isSimulation()) {
             m_visionSim = new VisionSystemSim("VisionSim");
             m_visionSim.addAprilTags(m_fieldLayout);
+            // Create simulated camera properties. These can be set to mimic your actual
+            // camera.
+            var cameraProp = new SimCameraProperties();
+            cameraProp.setCalibration(320, 240, Rotation2d.fromDegrees(90));
+            cameraProp.setCalibError(0.35, 0.10);
+            cameraProp.setFPS(70);
+            cameraProp.setAvgLatencyMs(30);
+            cameraProp.setLatencyStdDevMs(10);
+            // Create a PhotonCameraSim which will update the linked PhotonCamera's values
+            // with visible
+            // targets.
+            cameraSim = new PhotonCameraSim(p_camera, cameraProp);
+            // Add the simulated camera to view the targets on this simulated field.
+            m_visionSim.addCamera(cameraSim, p_backCameraTransform);
 
+            cameraSim.enableDrawWireframe(true);
         }
 
     }
@@ -90,7 +108,11 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         UpdateAprilTagPositions();
+    }
 
+    @Override
+    public void simulationPeriodic() {
+        m_visionSim.update(p_currentPose.get());
     }
 
     /**
