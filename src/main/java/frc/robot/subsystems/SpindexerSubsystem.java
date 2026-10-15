@@ -77,7 +77,7 @@ public class SpindexerSubsystem extends SubsystemBase {
         kickerCfg.closedLoop.feedForward.kV(KICKER_KV, ClosedLoopSlot.kSlot0);
         // Kicker should only run in the forward direction, so set the output range to 0
         // to 1
-        kickerCfg.inverted(true);
+        kickerCfg.inverted(false);
         kickerCfg.closedLoop.outputRange(-1, 1);
 
         kickerCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);

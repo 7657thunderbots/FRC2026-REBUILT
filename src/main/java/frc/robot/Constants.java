@@ -49,8 +49,8 @@ public final class Constants {
 
   public static class IntakeConstants {
 
-    public static final double INTAKE_UP_SETPOINT = 0.375;
-    public static final double INTAKE_DOWN_SETPOINT = -0.01;
+    public static final double INTAKE_UP_SETPOINT = 0.32;
+    public static final double INTAKE_DOWN_SETPOINT = -0.013;
 
     public static final double INTAKE_SPEED = 800.0;
     public static final double INTAKE_REV_SPEED = -800.0;
@@ -86,14 +86,14 @@ public final class Constants {
     public static final double KICKER_GEAR_RATIO = 1.0 / 3.0;
 
     // Spin Motor Constants
-    public static final double SPINDEXER_SPEED = 700.0;
+    public static final double SPINDEXER_SPEED = 1000.0;
     public static final int SPIN_CAN_BUS_ID = 15;
     public static final double SPIN_KP = 0.0001;
     public static final double SPIN_KD = 0.0;
     public static final double SPIN_KI = 0.0;
     public static final double SPIN_KS = 0.12;
     public static final double SPIN_KV = 0.002;
-    public static final double SPIN_GEAR_RATIO = 1.0 / 3.0;
+    public static final double SPIN_GEAR_RATIO = 1.0 / 9.0;
   }
 
   public static class ShooterConstants {
