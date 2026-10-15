@@ -82,6 +82,12 @@ public class SwerveSubsystem extends SubsystemBase {
     public SwerveSubsystem(File directory) {
         this.alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
         Pose2d startingPose = alliance == Alliance.Blue ? Constants.BLUE_START_POSE : Constants.RED_START_POSE;
+
+        // Alway start as Red to make the sim happy
+        if (RobotBase.isSimulation()) {
+            startingPose = Constants.RED_START_POSE;
+        }
+
         this.startingPose = startingPose;
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.

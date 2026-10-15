@@ -23,10 +23,11 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve/neo"));
 
-  // private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(() ->
-  // m_swerveSubsystem.getPose(),
-  // m_swerveSubsystem.getSwerveDrive().field,
-  // m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
+  private final VisionSubsystem m_visionSubsystem = new VisionSubsystem(() ->
+  m_swerveSubsystem.getPose(),
+  m_swerveSubsystem.getSwerveDrive().field,
+  m_swerveSubsystem.getSwerveDrive()::addVisionMeasurement);
+
   private final SpindexerSubsystem m_SpindexerSubsystem = new SpindexerSubsystem();
 
   private final ShooterSubsystem m_ShooterSubsystem = new ShooterSubsystem(() -> m_swerveSubsystem.getPose(),
